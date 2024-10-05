@@ -87,7 +87,7 @@ If TARGET is >= 4GB: use Grubutil FAT >= 2023, April (look in folder 'ext')
 FATCOPY.G4B is not not compatible with Grub4Dos 0.4.5b/Grub4Dos 0.4.5c
             is compatible with Grub4Dos for UEFI (other FAT version in 'ext'!)
             but up to latest version (20240901) soon 'out of malloc memory'
-UTF-8 characters not supported in first 12 characters of file-name
+UTF-8 characters not supported in first 13 characters of file name
 
 Example: FATCOPY.G4B (hd0,0)/SOMEFILE.EXT (hd0,0)/BACKUP/
 Example: FATCOPY.G4B (hd0,0)/*.EXT (hd0,0)/BACKUP/EXT/
