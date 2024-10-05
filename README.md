@@ -105,7 +105,6 @@ Example: FATCOPY.G4B (hd1,0)/SOMEDI~1/ (fd1)/SOMEDI~1/ /s /lfn:@
 
 Based on copyFF.bat (:cpa & :copyfiles & :sub-dir => originator of call's seems to be Chenall)
 Dedicated to Jaclaz for inspiration and help</pre>
-
 #### ATTRIBFT.LLL
 
 Concept of 'Loosely Linked Library' is courtesy of Wonko the Sane (Jaclaz)  
