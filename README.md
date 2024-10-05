@@ -124,13 +124,16 @@ NEW: dialog to overwrite read-only files, always with switch /r
 Various bugfixes  
 
 Version 0.3  
-Earlier published on msfn (members only): https://msfn.org/board/topic/180597-exploring-setup-p-isdetectbus-and-grub4dos-8%C2%BD-times-win98se-on-usb-drive/?do=findComment&comment=1193210  
+Earlier published on msfn (members only):
+https://msfn.org/board/topic/180597-exploring-setup-p-isdetectbus-and-grub4dos-8%C2%BD-times-win98se-on-usb-drive/?do=findComment&comment=1193210  
 
 Version 0.2  
-Earlier published on msfn (members only): https://msfn.org/board/topic/180597-exploring-setup-p-isdetectbus-and-grub4dos-8%C2%BD-times-win98se-on-usb-drive/?do=findComment&comment=1182924  
+Earlier published on msfn (members only):
+https://msfn.org/board/topic/180597-exploring-setup-p-isdetectbus-and-grub4dos-8%C2%BD-times-win98se-on-usb-drive/?do=findComment&comment=1182924  
 
 Version 0.1  
-Earlier published on msfn (members only): https://msfn.org/board/topic/180597-exploring-setup-p-isdetectbus-and-grub4dos-8%C2%BD-times-win98se-on-usb-drive/?do=findComment&comment=1182924  
+Earlier published on msfn (members only):
+https://msfn.org/board/topic/180597-exploring-setup-p-isdetectbus-and-grub4dos-8%C2%BD-times-win98se-on-usb-drive/?do=findComment&comment=1182924  
 
 ### SCREENSHOTS
 
