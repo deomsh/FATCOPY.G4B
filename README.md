@@ -10,8 +10,8 @@ Default 8+3 File Names (except with /lfn[:case], see below)
 Arguments space-separated, switches: lower/uppercase free
 More convenient => insmod (bd)/fatutils/fatcopy.g4b copy (insmode FAT too!) or rename
 --mdbase=sector => set base memory of memdrives, default 0x3000*
-* FAT directory-parsing needs 2048KB, LS directory-parsing needs 128KB
-* Minimum 0x3000, rejected: 0x0000-0x2999, 0x4000-0xD460 and 0x12000-0x12FFF
+*  FAT directory-parsing needs 2048KB, LS directory-parsing needs 128KB
+*  Minimum 0x3000, rejected: 0x0000-0x2999, 0x4000-0xD460 and 0x12000-0x12FFF
 
 (source) DEVICE1 = (fd#) & (hd#,#) & (0x#) & (#) with ISO/CD/DVD
 (target) DEVICE2 = (fd#) & (hd#,#) & (0x#) & (#) FAT only
@@ -45,10 +45,10 @@ General switches: /d /s /[-]o /i /p /q /v /t /[-]x:~ /[-]ext:EXT /[-]r /maxfiles
 3* Examples: /ext:g4b.lll.bat or /-ext:.7z.cab.img.rar.vhd.zip- first dot free
 4* date and time never updated with overwriting, to not loose (LFN-)metadata
 
-FAT directory-parser switches: /a:[-]d[-]a[-]r[-]s[-]h /a  /lfn:@ *
+FAT directory-parser switches: /a:[-]d[-]a[-]r[-]s[-]h /a /lfn:@ *
 /a:[-]d[-]a[-]r[-]s[-]h = [not] copy files/directories with attribute(s) **
 /a = copy attributes, NT-casebyte, last access date, modification time and date
-* Default directory parser if copying from FAT-source
+*  Default directory parser if copying from FAT-source
 *  About max 36 000 files AND max 3 000 subdirectories in one directory
 ** Attributes not copied by FAT, copied files: archive-attribute, or use /a too
 
@@ -71,7 +71,7 @@ LS parser switches: /sfn[:@]|[/lfn[:case] /a] /e /$ /l+f /filenum:[-]n /nocase
 ** If exist spaces or '=' in PATH/FILE or switch /noext: use (double-)quotes!
 ** Double-quote usage: "DEVICE/PATH/FILE"- on ROOT "/PATH1/FILE1" or "FILE1"
 ** Special case: PATH or FILE containing '='-sign ALWAYS quotes (& "/[-]x:=")
-   Or us escaped spaces/ '=': '\ ' or '\=' (try first with switch /t)
+    Or us escaped spaces/ '=': '\ ' or '\=' (try first with switch /t)
 ** With /lfn wildcard '*' in name/ext-part after maximum 16/6 characters
 3* Can be read out and used to restore LFN's in LFN-aware operating system
 3* Directories get # instead of @ (file: SFN@num.ext- directory SFN#num.ext)
