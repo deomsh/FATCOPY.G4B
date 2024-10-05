@@ -122,7 +122,7 @@ NEW: limit maximum of copied bytes with switch /maxfiles:n
 NEW: limit maximum of copied files with switch /maxfiles:N  
 NEW: dialog to overwrite read-only files, do in advance with switch /r  
 Better protection against errors on command-line  
-Changes to switch setting MDBASE  
+Changes to switch to change MDBASE  
 Various bugfixes  
 
 Version 0.3  
