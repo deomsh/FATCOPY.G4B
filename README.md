@@ -116,7 +116,7 @@ More information and download: https://github.com/deomsh/ATTRIBFT.LLL
 Version 0.4    
 NEW: add Long Files Names from previously saved to XXXXXX#n/@n[.EXT]-files to 'tilded (XXXXXX~n[.EXT])' Short File Names with switch /lfn[:]@ (needed: Loosely Linked Library ATTRIBFT.LLL)  
 NEW: copy Long File Names with switch /lfn[:case] (needed: Loosely Linked Library ATTRIBFT.LLL)  
-NEW: copy zerobyte-files with switch /z (NOT from NTFS source)  
+NEW: copy zerobyte-files with switch /z (NOT possible if source is NTFS)  
 NEW: copy all atrributes on source files to target files with switch /a  
 NEW: limit maximum of copied bytes with switch /maxfiles:n  
 NEW: limit maximum of copied files with switch /maxfiles:N  
