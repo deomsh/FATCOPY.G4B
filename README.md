@@ -8,11 +8,11 @@ Copy files on DEVICE1 to DEVICE2; if omitted DEVICE1/DEVICE2: from/to root
 Copy from hidden partitions and to hidden FAT partitions too!
 Default 8+3 File Names (except with /lfn[:case], see below)
 Arguments space-separated, switches: lower/uppercase free
-More convenient => insmod (bd)/fatutils/fatcopy.g4b copy (or rename file)
-
+More convenient => insmod (bd)/fatutils/fatcopy.g4b copy (insmode FAT too!) or rename
 --mdbase=sector => set base memory of memdrives, default 0x3000*
 * FAT directory-parsing needs 2048KB, LS directory-parsing needs 128KB
 * Minimum 0x3000, rejected: 0x0000-0x2999, 0x4000-0xD460 and 0x12000-0x12FFF
+
 (source) DEVICE1 = (fd#) & (hd#,#) & (0x#) & (#) with ISO/CD/DVD
 (target) DEVICE2 = (fd#) & (hd#,#) & (0x#) & (#) FAT only
 /PATH1/ = source directory => without DEVICE1 => on root (PATH1/ too)
@@ -81,7 +81,7 @@ LS parser switches: /sfn[:@]|[/lfn[:case] /a] /e /$ /l+f /filenum:[-]n /nocase
 5* Only File Systems supported with File Version Numbser Suffix && echo
 
 Remarks:
-FAT needed, searched in: %^~dp0, (bd), ROOT, /, /boot/grub/, /grub/, /g4dll/
+FAT needed, searched in: %~dp0, (bd), ROOT, /, /boot/grub/, /grub/, /g4dll/
 File versions: Grubutil FAT 15/02/2015, Grub4Dos 0.4.6a (>=2017 with 'vol')
 If TARGET is >= 4GB: use Grubutil FAT >= 2023, April (look in folder 'ext')
 FATCOPY.G4B is not not compatible with Grub4Dos 0.4.5b/Grub4Dos 0.4.5c
