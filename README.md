@@ -89,7 +89,7 @@ FATCOPY.G4B is not not compatible with Grub4Dos 0.4.5b/Grub4Dos 0.4.5c
             but up to latest version (20240901) soon 'out of malloc memory'
 UTF-8 characters not supported in first 12 characters of file-name
 
-Example: FATCOPY.G4B (hd0,0)/SOMEFILE.EXT (hd0,0)/BACKUP
+Example: FATCOPY.G4B (hd0,0)/SOMEFILE.EXT (hd0,0)/BACKUP/
 Example: FATCOPY.G4B (hd0,0)/*.EXT (hd0,0)/BACKUP/EXT/
 Example: FATCOPY.G4B (hd0,0)/FILE.EX* (hd0,0)/BACKUP/FILE/ /t
 Example: FATCOPY.G4B (hd0,0)/SOMEFIL*.EX* (hd0,0)/BACKUP/WILDCARD/ /q
