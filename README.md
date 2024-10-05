@@ -29,7 +29,7 @@ General switches: /d /s /[-]o /i /p /q /v /t /[-]x:~ /[-]ext:EXT /[-]r /maxfiles
 /[-]o = [never]overwrite files, BTW: /[-] means choice, type /- (!)
 /i = incremental copying by comparing CRC32 of files on source and target
 /p = pause after each screen
-/q = quiet copying: error messages & last file-count message only *
+/q = quiet copying: error messages and last file-count message only *
 /v = verify with message of status- not with /t (try /v if copying stops)
 /t = trial without actual copying (can be used as simple DIR)
 /[-]x:~ = only SFN-equivalent of LFN/real shortened LFN will [not] be copied **
@@ -39,7 +39,7 @@ General switches: /d /s /[-]o /i /p /q /v /t /[-]x:~ /[-]ext:EXT /[-]r /maxfiles
 /maxbyte:n = set max number of bytes to copy- takes k, m, g postfix operator
 /z = copy zero byte files (default: ommitted), fake overwriting only 4*
      copied for files, not for directories - from FAT-source only
-*  Default verbose copying: mkdir & copy & output messages (less with '*.*')
+*  Default verbose copying: mkdir and copy and output messages (less with '*.*')
 ** Character '?' is FORBIDDEN, reserved for internal use!
 ** Instead of '~' ONE other character can be used too (for name-part only)
 3* Examples: /ext:g4b.lll.bat or /-ext:.7z.cab.img.rar.vhd.zip- first dot free
@@ -78,7 +78,7 @@ LS parser switches: /sfn[:@]|[/lfn[:case] /a] /e /$ /l+f /filenum:[-]n /nocase
 3* Auto-saved during copying and read-out for existing files (auto with /i)
 3* If /[-]x:@ SFN@num.ext not saved but [not]copied- with /sfn:@ '@' reserved
 4* (Self-declared) Experts only! $-(meta)files can grow above 4GB, lost+found?
-5* Only File Systems supported with File Version Numbser Suffix && echo
+5* Only File Systems supported with File Version Number Suffix
 
 Remarks:
 FAT needed, searched in: %~dp0, (bd), ROOT, /, /boot/grub/, /grub/, /g4dll/
@@ -114,6 +114,14 @@ More information and download: https://github.com/deomsh/ATTRIBFT.LLL
 ### HISTORY
 
 Version 0.4    
+NEW: add Long Files Names from previously saved to XXXXXX#n/@n[.EXT]-files to 'tilded (XXXXXX~n[.EXT])' Short File Names with switch /lfn[:]@ (needed: Loosely Linked Library ATTRIBFT.LLL)  
+NEW: copy Long File Names with switch /lfn[:case] (needed: Loosely Linked Library ATTRIBFT.LLL)  
+NEW: copy zerobyte-files with switch /z (NOT from NTFS source)  
+NEW: copy all atrributes on source files to target files with switch /a  
+NEW: limit maximum of copied bytes with switch /maxfiles:n  
+NEW: limit maximum of copied files with switch /maxfiles:N  
+NEW: dialog to overwrite read-only files, always with switch /r  
+Various bugfixes  
 
 Version 0.3  
 Earlier published on msfn (members only): https://msfn.org/board/topic/180597-exploring-setup-p-isdetectbus-and-grub4dos-8%C2%BD-times-win98se-on-usb-drive/?do=findComment&comment=1193210  
@@ -125,3 +133,4 @@ Version 0.1
 Earlier published on msfn (members only): https://msfn.org/board/topic/180597-exploring-setup-p-isdetectbus-and-grub4dos-8%C2%BD-times-win98se-on-usb-drive/?do=findComment&comment=1182924  
 
 ### SCREENSHOTS
+
