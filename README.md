@@ -89,19 +89,18 @@ FATCOPY.G4B is not not compatible with Grub4Dos 0.4.5b/Grub4Dos 0.4.5c
             but up to latest version (20240901) soon 'out of malloc memory'
 UTF-8 characters not supported in first 13 characters of file name
 
-Example: FATCOPY.G4B (hd0,0)/SOMEFILE.EXT (hd0,0)/BACKUP/
-Example: FATCOPY.G4B (hd0,0)/*.EXT (hd0,0)/BACKUP/EXT/
-Example: FATCOPY.G4B (hd0,0)/FILE.EX* (hd0,0)/BACKUP/FILE/ /t
-Example: FATCOPY.G4B (hd0,0)/SOMEFIL*.EX* (hd0,0)/BACKUP/WILDCARD/ /q
-Example: fatcopy.g4b (fd0)/ (hd1,0)/backup/ /s /maxbyte:64m
-Example: FATCOPY.G4B (fd0)/ (hd1,0)/BACKUP/ /sfn
-Example: FATCOPY.G4B (fd0)/ (hd1,0)/BACKUP/ /s /sfn:@ /v
-Example: FATCOPY.G4B (hd0,0)/Program\ Files/ (hd1,0)/Program\ Files/ /lfn /s /t
-Example: FATCOPY.G4B (hd0,0)/Program\ Files/ (hd1,0)/BACKUP/Program\ Files/ /lfn /s /t
-Example: FATCOPY.G4B "(hd0,0)/Program Files/" (hd1,0)/BACKUP/ /lfn /s /d /z
-Example: FATCOPY.G4B (hd0,0)/PROGRA~1/ (hd1,0)/BACKUP/ /lfn:case /s /d /z /i /a
-Example: FATCOPY.G4B (fd0)/IO.SYS (hd0,0) /r /a
-Example: FATCOPY.G4B (hd1,0)/SOMEDI~1/ (fd1)/SOMEDI~1/ /s /lfn:@
+Example  1: FATCOPY.G4B (hd0,0)/SOMEFILE.EXT (hd0,0)/BACKUP/
+Example  2: FATCOPY.G4B (hd0,0)/*.EXT (hd0,0)/BACKUP/EXT/
+Example  3: FATCOPY.G4B (hd0,0)/FILE.EX* (hd0,0)/BACKUP/FILE/ /t
+Example  4: FATCOPY.G4B (hd0,0)/SOMEFIL*.EX* (hd0,0)/BACKUP/WILDCARD/ /q
+Example  5: fatcopy.g4b (fd0)/ (hd1,0)/backup/ /s /maxbyte:1m
+Example  6: FATCOPY.G4B (fd0)/ (hd1,0)/BACKUP/ /sfn
+Example  7: FATCOPY.G4B (fd0)/ (hd1,0)/BACKUP/ /s /sfn:@ /v
+Example  8: FATCOPY.G4B (hd0,0)/Program\ Files/ (hd1,0)/Program\ Files/ /lfn /s
+Example  9: FATCOPY.G4B "(hd0,0)/Program Files/" (hd1,0)/BACKUP/ /lfn /s /d /z
+Example 10: FATCOPY.G4B (hd0,0)/PROGRA~1/ (hd1,0)/BACKUP/ /lfn:case /s /d /z /i /a
+Example 11: FATCOPY.G4B (fd0)/IO.SYS (hd0,0) /r /a
+Example 12: FATCOPY.G4B (hd1,0)/SOMEDI~1/ (fd1)/SOMEDI~1/ /s /lfn:@
 
 Based on copyFF.bat (:cpa & :copyfiles & :sub-dir => originator of call's seems to be Chenall)
 Dedicated to Jaclaz for inspiration and help</pre>
@@ -126,16 +125,20 @@ Changes to switch to change MDBASE
 Various bugfixes  
 
 Version 0.3  
-Earlier published on msfn (members only):  
+Earlier published on msfn (download: members only):  
 https://msfn.org/board/topic/180597-exploring-setup-p-isdetectbus-and-grub4dos-8%C2%BD-times-win98se-on-usb-drive/?do=findComment&comment=1193210  
 
 Version 0.2  
-Earlier published on msfn (members only):  
+Earlier published on msfn (download: members only):  
 https://msfn.org/board/topic/180597-exploring-setup-p-isdetectbus-and-grub4dos-8%C2%BD-times-win98se-on-usb-drive/?do=findComment&comment=1182924  
 
 Version 0.1  
-Earlier published on msfn (members only):  
+Earlier published on msfn (download: members only):  
 https://msfn.org/board/topic/180597-exploring-setup-p-isdetectbus-and-grub4dos-8%C2%BD-times-win98se-on-usb-drive/?do=findComment&comment=1182924  
 
 ### SCREENSHOTS
+
+Example of making target directory with copying a file and example use of astersik wildcard
+
+![FATCOPY copying file AND copying Sasterisk BAT, to not existing directories I](https://github.com/user-attachments/assets/dc90a32e-8ba8-4f5c-a8ac-01d40b4f06b0)
 
