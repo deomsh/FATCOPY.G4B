@@ -144,6 +144,7 @@ Example of making target directory with copying a file and example use of asters
 
 Example of copying subdirectories too: switch /s combined with switch /maxbyte:n  
 
-![FATCOPY copy subdirectories too, with switch maxbyte](https://github.com/user-attachments/assets/fa72b8d5-46d5-4960-8c77-d3b9796ecc5c)
+![FATCOPY copy subdirectories too, with switch maxbyte](https://github.com/user-attachments/assets/6767efe2-0f92-489c-8fe3-ee9403e71918)
+
 
 
