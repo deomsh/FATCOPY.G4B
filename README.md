@@ -142,3 +142,8 @@ Example of making target directory with copying a file and example use of asters
 
 ![FATCOPY copying file AND copying Sasterisk BAT, to not existing directories I](https://github.com/user-attachments/assets/dc90a32e-8ba8-4f5c-a8ac-01d40b4f06b0)
 
+Example of copying subdirectories too, with switch maxbyte
+
+![FATCOPY copy subdirectories too, with switch maxbyte](https://github.com/user-attachments/assets/fa72b8d5-46d5-4960-8c77-d3b9796ecc5c)
+
+
