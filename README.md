@@ -148,3 +148,8 @@ Example of copying subdirectories too: switch /s combined with switch /maxbyte:n
 
 
 
+Ultimate limits: unsupporeted chars, directory depth and MAX PATH. showed with switches /lfn:case, /e and /q
+
+![FATCOPY limits of unsupporeted chars, directory depth and MAX PATH](https://github.com/user-attachments/assets/164f21c1-225e-4533-9b7a-a24b0d697907)
+
+
