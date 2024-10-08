@@ -93,14 +93,14 @@ Example  1: FATCOPY.G4B (hd0,0)/SOMEFILE.EXT (hd0,0)/BACKUP/
 Example  2: FATCOPY.G4B (hd0,0)/*.EXT (hd0,0)/BACKUP/EXT/
 Example  3: FATCOPY.G4B (hd0,0)/FILE.EX* (hd0,0)/BACKUP/FILE/ /t
 Example  4: FATCOPY.G4B (hd0,0)/SOMEFIL*.EX* (hd0,0)/BACKUP/WILDCARD/ /q
-Example  5: fatcopy.g4b (fd0)/ (hd1,0)/backup/ /s /maxbyte:1m
-Example  6: FATCOPY.G4B (fd0)/ (hd1,0)/BACKUP/ /sfn
-Example  7: FATCOPY.G4B (fd0)/ (hd1,0)/BACKUP/ /s /sfn:@ /v
-Example  8: FATCOPY.G4B (hd0,0)/Program\ Files/ (hd1,0)/Program\ Files/ /lfn /s
-Example  9: FATCOPY.G4B "(hd0,0)/Program Files/" (hd1,0)/BACKUP/ /lfn /s /d /z
-Example 10: FATCOPY.G4B (hd0,0)/PROGRA~1/ (hd1,0)/BACKUP/ /lfn:case /s /d /z /i /a
+Example  5: fatcopy.g4b (fd0)/ (hd0,0)/backup/ /s /maxbyte:1m
+Example  6: FATCOPY.G4B (0xe0)/ (hd0,0)/BACKUP/ /sfn
+Example  7: FATCOPY.G4B (fd0)/ (hd0,0)/BACKUP/ /s /sfn:@ /v
+Example  8: FATCOPY.G4B (hd0,0)/Program\ Files/ (hd0,0)/BACKUP/Program\ Files/ /lfn /s
+Example  9: FATCOPY.G4B "(hd0,0)/Program Files/" (hd0,0)/BACKUP/ /lfn /s /d /z
+Example 10: FATCOPY.G4B (hd0,0)/PROGRA~1/ (hd0,0)/BACKUP/ /lfn:case /s /d /z /i /a
 Example 11: FATCOPY.G4B (fd0)/IO.SYS (hd0,0) /r /a
-Example 12: FATCOPY.G4B (hd1,0)/SOMEDI~1/ (fd1)/SOMEDI~1/ /s /lfn:@
+Example 12: FATCOPY.G4B (hd0,0)/SOMEDI~1/ (hd0,0)/SOMEDI~1/ /s /lfn:@
 
 Based on copyFF.bat (:cpa & :copyfiles & :sub-dir => originator of call's seems to be Chenall)
 Dedicated to Jaclaz for inspiration and help</pre>
@@ -145,6 +145,16 @@ Example of making target directory with copying a file and example use of asters
 Example of copying subdirectories too: switch /s combined with switch /maxbyte:n  
 
 ![FATCOPY copy subdirectories too, with switch maxbyte](https://github.com/user-attachments/assets/6767efe2-0f92-489c-8fe3-ee9403e71918)
+
+Example of use of switch /sfn to force making Short File Names on target (default: zerobyte files not copied)
+
+![FATCOPY use of switch -sfn to force making Short File Names on target (default zerobyte files not copied)](https://github.com/user-attachments/assets/73626c7f-51d0-4dde-a5e0-d0a90760a595)
+
+Example of use of switch /sfn:@ to force making Short File Names on target AND save Long File Names to files. With switch /z to force copying zerobyte files
+
+![FATCOPY use of switch -sfn@ to force making Short File Names on target AND save Long File Names to file  With switch -z to force copying zerobyte files](https://github.com/user-attachments/assets/f68f0f77-d947-42dd-a917-4595d1fffcea)
+
+Example of use of switch /lfn:@ to add Long File Names earlier saved to files
 
 
 
