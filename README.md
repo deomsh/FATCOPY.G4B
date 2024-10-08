@@ -138,11 +138,11 @@ https://msfn.org/board/topic/180597-exploring-setup-p-isdetectbus-and-grub4dos-8
 
 ### SCREENSHOTS
 
-Example of making target directory with copying a file and example use of astersik wildcard
+Example of making target directory with copying a file and example use of astersik wildcard  
 
 ![FATCOPY copying file AND copying Sasterisk BAT, to not existing directories I](https://github.com/user-attachments/assets/dc90a32e-8ba8-4f5c-a8ac-01d40b4f06b0)
 
-Example of copying subdirectories too, with switch maxbyte
+Example of copying subdirectories too: switch /s combined with switch /maxbyte:n  
 
 ![FATCOPY copy subdirectories too, with switch maxbyte](https://github.com/user-attachments/assets/fa72b8d5-46d5-4960-8c77-d3b9796ecc5c)
 
