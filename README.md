@@ -138,7 +138,7 @@ https://msfn.org/board/topic/180597-exploring-setup-p-isdetectbus-and-grub4dos-8
 
 ### SCREENSHOTS
 
-Example of making target directory with copying a file and example use of astersik wildcard  
+Example of making target directory with copying a file and example use of asterisk wildcard  
 
 ![FATCOPY copying file AND copying Sasterisk BAT, to not existing directories I](https://github.com/user-attachments/assets/dc90a32e-8ba8-4f5c-a8ac-01d40b4f06b0)
 
@@ -154,14 +154,14 @@ Example of use of switch /sfn:@ to force making Short File Names on target AND s
 
 ![FATCOPY use of switch -sfn@ to force making Short File Names on target AND save Long File Names to file  With switch -z to force copying zerobyte files](https://github.com/user-attachments/assets/f68f0f77-d947-42dd-a917-4595d1fffcea)
 
-Example of use of switch /lfn:@ to add Long File Names earlier saved to files (identical source and target allowed!)
+Example of use of switch /lfn:@ to add Long File Names earlier saved to files (identical source and target allowed!). Before: saved Long File Names read-out with FATLSDIR.G4B /SFN:@ and afterwards added Long Files Names with FATLSDIR.G4B /lfn
 
 ![FATCOPY use of switch -lfn@ to add Long File Names from file to Short File Names, source and target identical  With FATLSDIR before and after](https://github.com/user-attachments/assets/c9958de4-155d-4a9e-ac76-deb834872bad)
 
-Example of use of double-qoutes around spaced source, switch /d to add source-path to target-path, switch /s to copy non-empty sub-directories too and switch /lfn:case to make Long File Names on target, including case of Short File Names
+Example of use of double-qoutes around spaced source, switch /d to add source-path to target-path, switch /s to copy non-empty sub-directories too and switch /lfn:case to make Long File Names on target, including case of Short File Names. Result showed with LIST.G4B -s
 
 ![FATCOPY with double-qoutes around spaced source, switch -d to add source-path to target -path, switch -s to copy sub-directories too and switch -lfn=case to make LFN's, including case on SFN's](https://github.com/user-attachments/assets/a787743b-262a-4024-93cb-b7b9b86d01de)
 
-Ultimate limits: unsupported chars, directory depth and MAX PATH. showed with switches /lfn:case, /e and /q
+Ultimate limits: unsupported chars, directory depth and MAX PATH. showed with switches /lfn:case, /e (copy empty sub-directories too) and /q (quit operation, except error messages and copy statistics)
 
 ![FATCOPY limits of unsupporeted chars, directory depth and MAX PATH](https://github.com/user-attachments/assets/164f21c1-225e-4533-9b7a-a24b0d697907)
