@@ -113,15 +113,16 @@ More information and download: https://github.com/deomsh/ATTRIBFT.LLL
 ### HISTORY
 
 Version 0.4    
-NEW: add Long Files Names from previously saved to XXXXXX#n/@n[.EXT]-files to 'tilded (XXXXXX~n[.EXT])' Short File Names with switch /lfn[:]@ (needed: Loosely Linked Library ATTRIBFT.LLL)  
-NEW: copy Long File Names with switch /lfn[:case] (needed: Loosely Linked Library ATTRIBFT.LLL)  
-NEW: copy zerobyte-files with switch /z (NOT possible if source is NTFS)  
-NEW: copy all atrributes on source files to target files with switch /a  
-NEW: limit maximum of copied bytes with switch /maxfiles:n  
-NEW: limit maximum of copied files with switch /maxfiles:N  
+NEW: switch /lfn[:]@ to add Long Files Names from previously saved to XXXXXX#n/@n[.EXT]-files to 'tilded (XXXXXX~n[.EXT])' Short File Names (needed: Loosely Linked Library ATTRIBFT.LLL)  
+NEW: switch /lfn[:case] to copy Long File Names (needed: Loosely Linked Library ATTRIBFT.LLL)  
+NEW: switch /z to copy zerobyte-files (NOT possible if source is NTFS)  
+NEW: switch /a to copy all atrributes on source files to target files  
+NEW: switch /maxfiles:n to limit maximum of copied bytes  
+NEW: switch /maxfiles:N to limit maximum of copied files  
 NEW: dialog to overwrite read-only files, do in advance with switch /r  
-Better protection against errors on command-line  
-Changes to switch to change MDBASE  
+IMPROVED: switch /sfn:@ has auto-set tilded file number by read-out of already saved Long File Names  
+IMPROVED: protection against errors on command-line  
+Changes to switch in use to change MDBASE  
 Various bugfixes  
 
 Version 0.3  
