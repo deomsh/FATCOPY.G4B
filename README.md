@@ -1,7 +1,6 @@
 ## FATCOPY.G4B v0.4 (20241009)
 
-<pre><code></code>
-Function: front-end for Grubutil 'FAT', function 'copy'
+<pre><code>Function: front-end for Grubutil 'FAT', function 'copy'
 FATCOPY.G4B [--mdbase=sector] DEVICE1/PATH1/FILE1 DEVICE2/PATH2/FILE2 switches
 FATCOPY.G4B /? (this text)
 Copy files on DEVICE1 to DEVICE2; if omitted DEVICE1/DEVICE2: from/to root
@@ -103,7 +102,7 @@ Example 11: FATCOPY.G4B (fd0)/IO.SYS (hd0,0) /r /a
 Example 12: FATCOPY.G4B (hd0,0)/SOMEDI~1/ (hd0,0)/SOMEDI~1/ /s /lfn:@
 
 Based on copyFF.bat (:cpa & :copyfiles & :sub-dir => originator of call's seems to be Chenall)
-Dedicated to Jaclaz for inspiration and help</pre>
+Dedicated to Jaclaz for inspiration and help</code></pre>
 
 #### ATTRIBFT.LLL
 
