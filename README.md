@@ -146,7 +146,7 @@ Example of copying subdirectories too: switch /s combined with switch /maxbyte:n
 
 ![FATCOPY copy subdirectories too, with switch maxbyte](https://github.com/user-attachments/assets/6767efe2-0f92-489c-8fe3-ee9403e71918)
 
-Example of use of switch /sfn to force making Short File Names on target (default: zerobyte files not copied)
+Example of use of switch /sfn to force making Short File Names on target (default: zerobyte files not copied). Source file system: ISO-9660 (Joliet)
 
 ![FATCOPY use of switch -sfn to force making Short File Names on target (default zerobyte files not copied)](https://github.com/user-attachments/assets/73626c7f-51d0-4dde-a5e0-d0a90760a595)
 
