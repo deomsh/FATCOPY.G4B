@@ -1,4 +1,4 @@
-## FATCOPY.G4B v0.4 (20241005)
+## FATCOPY.G4B v0.4 (20241009)
 
 <pre><code></code>
 Function: front-end for Grubutil 'FAT', function 'copy'
@@ -154,7 +154,9 @@ Example of use of switch /sfn:@ to force making Short File Names on target AND s
 
 ![FATCOPY use of switch -sfn@ to force making Short File Names on target AND save Long File Names to file  With switch -z to force copying zerobyte files](https://github.com/user-attachments/assets/f68f0f77-d947-42dd-a917-4595d1fffcea)
 
-Example of use of switch /lfn:@ to add Long File Names earlier saved to files
+Example of use of switch /lfn:@ to add Long File Names earlier saved to files (identical source and target allowed!)
+
+![FATCOPY use of switch -lfn@ to add Long File Names from file to Short File Names, source and target identical  With FATLSDIR before and after](https://github.com/user-attachments/assets/c9958de4-155d-4a9e-ac76-deb834872bad)
 
 
 
