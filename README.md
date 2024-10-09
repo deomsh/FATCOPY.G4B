@@ -158,10 +158,10 @@ Example of use of switch /lfn:@ to add Long File Names earlier saved to files (i
 
 ![FATCOPY use of switch -lfn@ to add Long File Names from file to Short File Names, source and target identical  With FATLSDIR before and after](https://github.com/user-attachments/assets/c9958de4-155d-4a9e-ac76-deb834872bad)
 
+Example of use of double-qoutes around spaced source, switch /d to add source-path to target-path, switch /s to copy non-empty sub-directories too and switch /lfn:case to make Long File Names on target, including case of Short File Names
 
+![FATCOPY with double-qoutes around spaced source, switch -d to add source-path to target -path, switch -s to copy sub-directories too and switch -lfn=case to make LFN's, including case on SFN's](https://github.com/user-attachments/assets/a787743b-262a-4024-93cb-b7b9b86d01de)
 
 Ultimate limits: unsupported chars, directory depth and MAX PATH. showed with switches /lfn:case, /e and /q
 
 ![FATCOPY limits of unsupporeted chars, directory depth and MAX PATH](https://github.com/user-attachments/assets/164f21c1-225e-4533-9b7a-a24b0d697907)
-
-
