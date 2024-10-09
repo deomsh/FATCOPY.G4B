@@ -27,7 +27,7 @@ General switches: /d /s /[-]o /i /p /q /v /t /[-]x:~ /[-]ext:EXT /[-]r /maxfiles
 /s = copy content of ALL subdirectories too
 /[-]o = [never]overwrite files, BTW: /[-] means choice, type /- (!)
 /i = incremental copying by comparing CRC32 of files on source and target
-/p = pause after each screen
+/p = pause after each screen (Key Q can be used to exit)
 /q = quiet copying: error messages and last file-count message only *
 /v = verify with message of status- not with /t (try /v if copying stops)
 /t = trial without actual copying (can be used as simple DIR)
