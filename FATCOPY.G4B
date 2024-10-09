@@ -2205,7 +2205,7 @@ echo /s = copy content of ALL subdirectories too, except if they are empty
 echo /e = copy content of ALL subdirectories too, even if they are empty
 echo /[-]o = [never]overwrite files, BTW: /[-] means choice, type /- (!)
 echo /i = incremental copying by comparing CRC32 of files on source and target
-echo /p = pause after each screen
+echo /p = pause after each screen (Key Q can be used to exit)
 echo /q = quiet copying: error messages & last file-count message only *
 echo /v = verify with message of status- not with /t (try /v if copying stops)
 echo /t = trial without actual copying (can be used as simple DIR)
@@ -2260,7 +2260,9 @@ echo $[] If TARGET is >= 4GB: use Grubutil FAT >= 2023, April (look in folder 'e
 echo FATCOPY.G4B is not not compatible with Grub4Dos 0.4.5b/Grub4Dos 0.4.5c
 echo $[]            is compatible with Grub4Dos for UEFI (other FAT version in 'ext'!)
 echo $[]             but up to latest version (20240901) soon 'out of malloc memory' && echo
-echo Remark: UTF-8 characters not supported in first 13 characters of file-name && echo
+echo Remarks:
+echo UTF-8 characters not supported in first 13 characters of file-name
+echo Key Escape can be used to interrupt copying (with dialog) && echo
 echo Example  1: FATCOPY.G4B (hd0,0)/SOMEFILE.EXT (hd0,0)/BACKUP/
 echo Example  2: FATCOPY.G4B (hd0,0)/*.EXT (hd0,0)/BACKUP/EXT/
 echo Example  3: FATCOPY.G4B (hd0,0)/FILE.EX* (hd0,0)/BACKUP/FILE/ /t
