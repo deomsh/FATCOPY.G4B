@@ -1,5 +1,5 @@
 !BAT
-#-#+ FATCOPY.G4B v0.4.1 (20241020), by deomsh. Based on copyFF.bat (:cpa & :copyfiles & :sub-dir => originator of call's seems to be Chenall)
+#-#+ FATCOPY.G4B v0.4.1 (20241023), by deomsh. Based on copyFF.bat (:cpa & :copyfiles & :sub-dir => originator of call's seems to be Chenall)
 if "%~1"=="" && call :help "smallhelp" &; goto :eof
 setlocal && set *
 ## Parse command-line
@@ -1789,7 +1789,6 @@ call :attrib isreadonly "%~1" &; if not exist result && endlocal && set delagain
 #BAD#set attribms=%source%%%cd%%%arg% && call :attrib isreadonly "%source%%%cd%%%arg%" &; if not exist result && set delagain=N && goto :eof
 if %r%==/-r && set delagain=N
 if not exist r && echo -e \x20%~1 is read-only
-echo delagain=%delagain%
 if not %delagain%==N && if not exist r && set /p:90 /u "delagain= Overwrite (attributes deleted) (Y=yes N=no A=always S=skip Q=quit)?" &; echo && set delagain=%delagain:~0,1%
 if not exist r &; if not %delagain%==Y && if not %delagain%==N && if not %delagain%==A && if not %delagain%==S && if not %delagain%==Q && set delagain=
 if not exist r &; if not exist delagain && set delagain=N && echo
@@ -2174,7 +2173,7 @@ if "%~1"=="smallhelp" && echo Example: FATCOPY.G4B (fd0)/ (hd1,0)/BACKUP/ /s /sf
 if "%~1"=="smallhelp" && echo Example: FATCOPY.G4B (hd0,0)/PROGRA~1/ (hd1,0)/BACKUP/ /lfn:case /s /d /z
 if "%~1"=="smallhelp" && echo Example: FATCOPY.G4B (fd0)/IO.SYS (hd0,0) /r /a && goto :eof
 clear ;; pager on
-echo FATCOPY.G4B v0.4.1 (20241020), by deomsh. Based on copyFF.bat (:cpa & :copyfiles & :sub-dir => originator of call's seems to be Chenall)
+echo FATCOPY.G4B v0.4.1 (20241023), by deomsh. Based on copyFF.bat (:cpa & :copyfiles & :sub-dir => originator of call's seems to be Chenall)
 echo Function: front-end for Grubutil 'FAT', function 'copy'
 echo FATCOPY.G4B [--mdbase=sector] DEVICE1/PATH1/FILE1 DEVICE2/PATH2/FILE2 switches
 echo FATCOPY.G4B /? (this screen)
