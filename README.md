@@ -112,6 +112,11 @@ More information and download: https://github.com/deomsh/ATTRIBFT.LLL
 
 ### HISTORY
 
+Version 0.4.1  
+NEW: switches '/r' and '/a' compatible with ONE File Allocaytion Table (number of FAT's = 1)  
+BUGFIX: file1 to file2 with suffix on non-ISO9660/UDF = not asking  for next tildenum and not makelfn 
+BUGFIX: not copying anymore files with numbered ';'suffix on ISO9660/UDF  
+
 Version 0.4    
 NEW: switch /lfn[:]@ to add Long Files Names from previously saved to XXXXXX#n/@n[.EXT]-files to 'tilded (XXXXXX~n[.EXT])' Short File Names (needed: Loosely Linked Library ATTRIBFT.LLL)  
 NEW: switch /lfn[:case] to copy Long File Names (needed: Loosely Linked Library ATTRIBFT.LLL)  
