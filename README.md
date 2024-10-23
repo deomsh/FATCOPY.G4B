@@ -1,4 +1,4 @@
-## FATCOPY.G4B v0.4.1 (20241020)
+## FATCOPY.G4B v0.4.1 (20241023)
 
 <pre><code>Function: front-end for Grubutil 'FAT', function 'copy'
 FATCOPY.G4B [--mdbase=sector] DEVICE1/PATH1/FILE1 DEVICE2/PATH2/FILE2 switches
