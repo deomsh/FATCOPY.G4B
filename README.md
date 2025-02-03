@@ -1,4 +1,4 @@
-## FATCOPY.G4B v0.4.1 (20241023)
+## FATCOPY.G4B v0.4.2 (20250203)
 
 <pre><code>Function: front-end for Grubutil 'FAT', function 'copy'
 FATCOPY.G4B [--mdbase=sector] DEVICE1/PATH1/FILE1 DEVICE2/PATH2/FILE2 switches
@@ -22,7 +22,7 @@ FILE1 accepts wildcard: '*' AFTER chars in Name and/or Extension (NOT: '?')
 Without FILE1 full directory will be copied ('*.*' is NOT needed)
 FILE2 = copy/rename FILE1 to FILE2 => on root without DEVICE2 and/or /PATH2/
 
-General switches: /d /s /[-]o /i /p /q /v /t /[-]x:~ /[-]ext:EXT /[-]r /maxfiles:N /maxbyte:n /z /a
+General switches: /d /s /[-]o /i /p /q /v /t /[-]x:~ /[-]ext:EXT /[-]r /maxfiles:N /maxbyte:n /z /n
 /d = add PATH1 to PATH2
 /s = copy content of ALL subdirectories too
 /[-]o = [never]overwrite files, BTW: /[-] means choice, type /- (!)
@@ -38,6 +38,7 @@ General switches: /d /s /[-]o /i /p /q /v /t /[-]x:~ /[-]ext:EXT /[-]r /maxfiles
 /maxbyte:n = set max number of bytes to copy- takes k, m, g postfix operator
 /z = copy zero byte files (default: ommitted), fake overwriting only 4*
      copied for files, not for directories - from FAT-source only
+/n = do not copy Modification Date/-Time from FAT-source (15%-45% faster)
 *  Default verbose copying: mkdir and copy and output messages (less with '*.*')
 ** Character '?' is FORBIDDEN, reserved for internal use!
 ** Instead of '~' ONE other character can be used too (for name-part only)
@@ -86,7 +87,7 @@ If TARGET is >= 4GB: use Grubutil FAT >= 2023, April (look in folder 'ext')
 FATCOPY.G4B is not not compatible with Grub4Dos 0.4.5b/Grub4Dos 0.4.5c
             is compatible with Grub4Dos for UEFI (other FAT version in 'ext'!)
             but up to latest version (20240901) soon 'out of malloc memory'
-UTF-8 characters not supported in first 13 characters of file name
+UTF-8 characters not supported in first 12 characters of file name
 Copying can be stopped by pressing Escape (not on Grub4dos for UEFI)
 
 Example  1: FATCOPY.G4B (hd0,0)/SOMEFILE.EXT (hd0,0)/BACKUP/
@@ -111,6 +112,11 @@ Concept of 'Loosely Linked Library' is an idea of Wonko the Sane (Jaclaz)
 More information and download: https://github.com/deomsh/ATTRIBFT.LLL  
 
 ### HISTORY
+Version 0.4.2  
+NEW: Grub4dos version check (>=20170505)  
+NEW: always copy moddate/time unless new switch '/n' is in use  
+BUGFIX: total files overwritten -1  
+CHANGE: UTF-8 check first 12 characters only  
 
 Version 0.4.1  
 NEW: switches '/r' and '/a' compatible with ONE File Allocation Table (number of FAT's = 1)  
