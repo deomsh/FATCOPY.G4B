@@ -1,4 +1,4 @@
-## FATCOPY.G4B v0.4.2 (20250203)
+## FATCOPY.G4B v0.5 (20250725)
 
 <pre><code>Function: front-end for Grubutil 'FAT', function 'copy'
 FATCOPY.G4B [--mdbase=sector] DEVICE1/PATH1/FILE1 DEVICE2/PATH2/FILE2 switches
@@ -102,6 +102,7 @@ Example  9: FATCOPY.G4B "(hd0,0)/Program Files/" (hd0,0)/BACKUP/ /lfn /s /d /z
 Example 10: FATCOPY.G4B (hd0,0)/PROGRA~1/ (hd0,0)/BACKUP/ /lfn:case /s /d /z /i /a
 Example 11: FATCOPY.G4B (fd0)/IO.SYS (hd0,0) /r /a
 Example 12: FATCOPY.G4B (hd0,0)/SOMEDI~1/ (hd0,0)/SOMEDI~1/ /s /lfn:@
+Example 13: FATCOPY.G4B (hd0,0)/SOMEFILE.EXT (fd0)/NewFile.Ext /lfn:case
 
 Based on copyFF.bat (:cpa & :copyfiles & :sub-dir => originator of call's seems to be Chenall)
 Dedicated to Jaclaz for inspiration and help</code></pre>
@@ -112,6 +113,15 @@ Concept of 'Loosely Linked Library' is an idea of Wonko the Sane (Jaclaz)
 More information and download: https://github.com/deomsh/ATTRIBFT.LLL  
 
 ### HISTORY
+Version 0.5  
+NEW: FAT (and ATTRIBFT.LLL if used) not unloaded afterwards if already loaded with insmod  
+NEW: copying case from all ls-supported file-systems with switch '/LFN:case' (on truly case-sensitive file-systems first instance copied only)  
+BUGFIX: echo 'not enough space on target' if FAT is not found  
+BUGFIX: double copy-echo with FILE2 and /O (harmless)  
+BUGFIX: copying LFN of FILE1 with switch '/LFN:case' independent of case of FILE1 on command-line  
+BUG: no Directory/File-dialog with FILE2 anymore; FIX: xcopy-style dialog removed entirely (target-directory NEEDS '/' at the end: ls-style)  
+CHANGE: No source-attributes set with FILE2 (modification date/ time equal to creation date/ time on disk)  
+
 Version 0.4.2  
 NEW: Grub4dos version check (>=20170505)  
 NEW: always copy moddate/time unless new switch '/n' is in use  
