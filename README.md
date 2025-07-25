@@ -120,7 +120,6 @@ BUGFIX: echo 'not enough space on target' if FAT is not found
 BUGFIX: double copy-echo with FILE2 and /O (harmless)  
 BUGFIX: copying LFN of FILE1 with switch '/LFN:case' independent of case of FILE1 on command-line  
 BUG: no Directory/File-dialog with FILE2 anymore; FIX: xcopy-style dialog removed entirely (target-directory NEEDS '/' at the end: ls-style)  
-CHANGE: No source-attributes set with FILE2 (modification date/ time equal to creation date/ time on disk)  
 
 Version 0.4.2  
 NEW: Grub4dos version check (>=20170505)  
@@ -159,6 +158,7 @@ Earlier published on msfn (download: members only):
 https://msfn.org/board/topic/180597-exploring-setup-p-isdetectbus-and-grub4dos-8%C2%BD-times-win98se-on-usb-drive/?do=findComment&comment=1182924  
 
 ### SCREENSHOTS
+<img width="675" height="394" alt="TEXTSTAT G4B FATCOPY G4B version 0 5 after cleaning" src="https://github.com/user-attachments/assets/d652a72b-f61e-4b8a-b19e-22bafd91d2f4" />
 
 Example of making target directory with copying a file and example use of asterisk wildcard  
 
@@ -180,10 +180,17 @@ Example of use of switch /lfn:@ to add Long File Names earlier saved to files (i
 
 ![FATCOPY use of switch -lfn@ to add Long File Names from file to Short File Names, source and target identical  With FATLSDIR before and after](https://github.com/user-attachments/assets/c9958de4-155d-4a9e-ac76-deb834872bad)
 
-Example of use of double-qoutes around spaced source, switch /d to add source-path to target-path, switch /s to copy non-empty sub-directories too and switch /lfn:case to make Long File Names on target, including case of Short File Names. Result showed with LIST.G4B -s
+Example of use of double-qoutes around spaced source, switch /d to add source-path to target-path, switch /s to copy non-empty sub-directories too and switch /lfn:case to make Long File Names on target, including case of Short File Names. Test-copy first with switch /t. Result showed with LIST.G4B -s
 
-![FATCOPY with double-qoutes around spaced source, switch -d to add source-path to target -path, switch -s to copy sub-directories too and switch -lfn=case to make LFN's, including case on SFN's](https://github.com/user-attachments/assets/a787743b-262a-4024-93cb-b7b9b86d01de)
+<img width="1028" height="1036" alt="FATCOPY G4B v0 5 Test copy with -d -s -LFN=case and -t first" src="https://github.com/user-attachments/assets/c7cf6b23-a0df-4e43-ae18-6314fe565aa3" />
+<img width="740" height="367" alt="LIST G4B -s of results of FATCOPY G4B v0 5 Test copy with -d -s -LFN=case and -t first" src="https://github.com/user-attachments/assets/1cc2f2ab-6e3b-4876-9d19-085ef6bda442" />
 
 Ultimate limits: unsupported chars, directory depth and MAX PATH. showed with switches /lfn:case, /e (copy empty sub-directories too) and /q (quit operation, except error messages and copy statistics)
 
 ![FATCOPY limits of unsupporeted chars, directory depth and MAX PATH](https://github.com/user-attachments/assets/164f21c1-225e-4533-9b7a-a24b0d697907)
+
+Example of copying a single file with renaming and switch /LFN:case to make Long File Names on target, including case of Short File Names. Attributes, Dates and Times read-out with ATTRIBFT.G4B
+
+<img width="919" height="867" alt="FATCOPY G4B v0 5 Test copy single file with rename -LFN=case, first -t, later overwrite dialog + ATTRIBFT G4B attriballecho Source and Target" src="https://github.com/user-attachments/assets/6b83ba9f-8134-4a02-8a21-c4164d4d2af6" />
+
+
