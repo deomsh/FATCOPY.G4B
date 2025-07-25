@@ -1,5 +1,5 @@
 !BAT
-#-#+ FATCOPY.G4B v0.4.2 (20250203), by deomsh. Based on copyFF.bat (:cpa & :copyfiles & :sub-dir => originator of call's seems to be Chenall)
+#-#+ FATCOPY.G4B v0.5 (20250725), by deomsh. Based on copyFF.bat (:cpa & :copyfiles & :sub-dir => originator of call's seems to be Chenall)
 if not exist @uefi &; setlocal && set /a version=*0x8278&0xFFFFFFFF > nul &; if %version%>=20170505 && endlocal ! echo Grub4dos version %version% too old, use version 20170505 or later && endlocal && goto :eof
 if "%~1"=="" && call :help "smallhelp" &; goto :eof
 setlocal && set *
@@ -37,11 +37,10 @@ if exist gotomsg && echo && echo Character '?' is FORBIDDEN in source && echo &&
 set "file=%source%" && call :lsspaces &; set "source=%file%" && set file=
 ## '='=3D replace with question mark ?=3F
 set "arg=%source%" && call :cleanarg \x3D \x3F &; set "source=%arg%" && set arg=
-#BAD#echo "call :splitarg "%source%""
 call :splitarg "%source%"
 set sdev=%dev% && set "sdir=%path%" && set "name1=%name%" && set "ext1=%ext%" && set "file1=%file%" && set file=
 set dev= && set path= && set name= && set ext= && set file= && set source=
-set "arg=%file1% && call :cleanarg \x3F \x3D &; set "FILE1=%arg%" && set arg=
+set "arg=%file1% && call :cleanarg \x3F \x3D &; set "file1=%arg%" && set arg=
 set "arg=%target%" && call :cleanarg \x22 &; set "target=%arg%" && set arg=
 set arg= &; set "arg=%target%" && call :forbiden \x3F "goto :eov" &; set "target=%arg%" && set arg=
 if exist gotomsg && echo && echo Character '?' is FORBIDDEN in target && echo && %gotomsg%
@@ -49,7 +48,7 @@ set "file=%target%" && call :lsspaces &; set "target=%file%" && set file=
 set "arg=%target%" && call :cleanarg \x3D \x3F &; set "target=%arg%" && set arg=
 call :splitarg "%target%"
 set tdev=%dev% && set "tdir=%path%" && set "name2=%name%" && set "ext2=%ext%" && set "file2=%file%"
-set "arg=%file2% && call :cleanarg \x3F \x3D &; set "FILE2=%arg%" && set arg=
+set "arg=%file2%" && call :cleanarg \x3F \x3D &; set "FILE2=%arg%" && set arg=
 set dev= && set path= && set name= && set ext= && set file= && set target=
 set arg=
 ## Placement before :optargs needed
@@ -57,7 +56,9 @@ set prompt=1 && set lfprmptd=1 && set lfprmptf=1
 shift && shift
 call :optargs %* &; if %result%==0 && echo && call :help "smallhelp" && echo && goto :eov
 if exist mdmem && if not exist ls && if %mdmem%>=0x3001 && if %mdmem%<=0x4000 && echo && echo Base memory out of range => FATCOPY.G4B /? && echo && goto :eov
-if exist LFN &; if not exist %batchsrc%ATTRIBFT.LLL && echo ATTRIBFT.LLL not found, mandatory with switch '/LFN' && set result=0 && goto :eov ! delmod -l ATTRIBFT.LLL > nul || insmod %batchsrc%ATTRIBFT.LLL > nul || echo insmod can not load %batchsrc%ATTRIBFT.LLL && set result=0 && goto :eof
+delmod -l fat > nul && set INSMOD=fat ! set INSMOD=INSMOD &; if exist LFN && delmod -l ATTRIBFT.LLL > nul &; if %INSMOD%==fat && set INSMOD=%INSMOD%;ATTRIBFT.LLL ! set INSMOD=ATTRIBFT.LLL
+delmod -l fat > nul |; insmod %batchsrc%fat > nul || insmod (bd)/fat > nul || insmod (bd)/boot/grub/fat > nul || insmod (bd)/grub/fat > nul || insmod (bd)/g4dll/fat > nul || insmod /fat > nul || insmod /boot/grub/fat > nul || insmod /grub/fat > nul || insmod /g4dll/fat > nul || echo && echo FAT not found => fatcopy.g4b /? && echo && goto :eov
+if exist LFN && delmod -l ATTRIBFT.LLL > nul |; if not exist %batchsrc%ATTRIBFT.LLL && echo && echo ATTRIBFT.LLL not found, mandatory with switch '/LFN' && set result=0 && goto :eov ! insmod %batchsrc%ATTRIBFT.LLL > nul || echo && echo insmod can not load %batchsrc%ATTRIBFT.LLL && set result=0 && goto :eov
 if %copyattr%==Y && if exist ls && if not exist LFN && echo && echo ls-directory parsing with FAT source and target: switch /a only with /lfn && set result=0 && echo && goto :eov
 echo -n > (md)%mdmem%+1
 if exist noext && set "arg=%noext%"
@@ -74,7 +75,6 @@ if exist sdir && setlocal && call :parsesd %fslash% &; endlocal && set "sd=%sd%"
 if exist gotomsg &; %gotomsg%
 if exist LFN && if exist sd &; call Fn.11 "%sd%" "\x20" && setlocal && set "file=%sd%" && call :lsspaces &; endlocal && set "sd=%file%"
 if not exist SFN && if %lfndir%>=1 && echo && echo Source directory (or a part of PATH1) is a Long File Name => FATCOPY.G4B /? && echo && goto :eov
-#IMPOSSIBLE#if exist SFN && if not exist LFN && if %lfndir%>=1 && if not exist sfnsd && echo && echo Source directory (or a part of PATH1) is a Long File Name which Short File Name does not exist && echo && goto :eov
 set lfndir=
 ## Check for * in name1/ext1
 if exist name1 && call Fn.11 "%name1%" "?" && echo Wildcard '?' not supperted && set result=0 && goto :eov
@@ -82,10 +82,9 @@ if exist name1 && call Fn.11 "%name1%" "*" && call :prsname1 "echo && echo Posit
 if exist ext1 && call Fn.11 "%ext1%" "?" && echo Wildcard '?' not supperted && set result=0 && goto :eov
 if exist ext1 && call :prsext1 "echo && echo Position of wildcard '*' not allowed => FATCOPY.G4B /? && echo && goto :eov" &; if exist gotomsg && %gotomsg%
 if not exist wcn if not exist wcx || set file1=
-if not exist wcn && if not exist wcx && set "file1=%name1%%%ext1%" &; if exist file1 && set s= && set y=
+if not exist wcn && if not exist wcx && set "file1=%name1%%%ext1%" &; if exist file1 &; if exist %sdev%%%sdir%%%file1% && set s= && set y= ! echo %sdev%%%sdir%%%file1% is not an existing file && set result=0 && goto :eov
 ## Check file1/2 for LFN's first is not exist SFN
 ## Validate /s
-#MAYBE#if exist s &; if exist file1 && set s= ! if %noext:~0,5%==/ext: && set s= ! if %x:~0,3%==/x: && set s= ! if exist name1 && if exist ext1 && if not %name1%==* && if not %ext1%==* && set s= ! if exist name1 && if exist ext1 && if %name1%==* && if not %ext1%==* && set s= ! if exist name1 && if exist ext1 && if not %name1%==* && if %ext1%==* && set s= &; if not exist s && echo && echo Switch /s is not valid with copying named files or named extensions && echo && set result=0 && goto :eov
 echo -n > (md)%mdmem%+1
 set "case=/i"
 call :filesystem "%sdev%" &; set /u sourceok=%filesys% && set filesys=
@@ -139,24 +138,15 @@ if %sourceok%==UDF && set case= && set LF=/LF && if not exist ls && set ls=/ls &
 if %sourceok:~0,3%==FAT && set LF=/LF && if exist ls && if not exist q && echo FAT source found, switched to ls-mode
 ## Check compatibity
 if %sourceok%==NTFS &; if exist z && echo Switch '/z' not compatible with NTFS-source => FATCOPY.G4B /? && set result=0 && goto :eov
-delmod -l fat > nul || insmod %batchsrc%fat > nul || insmod (bd)/fat > nul || insmod (bd)/boot/grub/fat > nul || insmod (bd)/grub/fat > nul || insmod (bd)/g4dll/fat > nul || insmod /fat > nul || insmod /boot/grub/fat > nul || insmod /grub/fat > nul || insmod /g4dll/fat > nul || echo FAT not found => fatcopy.g4b /? && echo && goto :eov
 if not exist targetok && fat info %tdev% > nul && set targetok=FAT
 if %LFN%==/LFN:@ &; if not %sourceok:~0,3%==FAT && if not %targetok%==FAT && echo && echo Source and target must be FAT with '/LFN[:]@' => FATCOPY.G4B /? && echo && goto :eov
-#OLD# Whole story for FAT32 >=4GB
-#OLD#if %targetok%==FAT32 && call :FAT32max
-#OLD#if %targetok%==FAT32 && if %maxbyte%>=0x100000000 && set tdevice=%tdev%
 set targetok= && if not %sourceok%==NTFS && if not %sourceok%==UDF && if not %sourceok%==ISO &; if exist LFN && if not %sourceok:~0,3%==FAT && set sourceok= ! if exist ls && if %copyattr%==Y && if not %sourceok:~0,3%==FAT && set sourceok= ! if not exist LFN && if not %copyattr%==Y && set sourceok=
-if exist FILE2 && echo && echo -e \x20Does %FILE2% specify a file name or directory on the target
-if exist FILE2 && set xcopy=a && set /p:90 /u "xcopy= (F=file D=directory Q=quit)?"
-if exist xcopy && set xcopy=%xcopy:~0,1% &; if /i not %xcopy%==D && if /i not %xcopy%==F && echo && echo File or Directory not specified && echo && goto :eov
-if /i %xcopy%==D && set "tdir=%tdir%/%FILE2%" && set file2= && set xcopy= && set FILE2= && echo
-if /i %xcopy%==F && echo && set FILE2=
 ## Align switches
-if not exist file1 && if /i %xcopy%==F && echo && echo Source file is not specified && echo && goto :eov
+if exist FILE2 && if not exist file1 && echo && echo Source file is not specified && echo && goto :eov ! set FILE2=
 if not exist ls && set e= && set SFN= && set NTFS=
 if not exist SFN && set lfprmptd= && set lfprmptf=
 if exist ls && if not exist s && set e=
-set "act=>" && set "echomsg=&& echo"
+set "act=>" && set "echomsg=&& echo" && set xcopy=
 if %q%==/q && set echomsg= && set "NULL=> nul" && set q=
 if %t%==/t && set v= && set act=
 ## Needed for skip tdir-part to get sdir in case of saving existing SFN#.ext one directory higher
@@ -173,8 +163,6 @@ if exist nocase && set "case=/i"
 set msds=0 && set msdf=0 && set sdsm=0 && set sdsk=0 && set fcs=0 && set zerobyt=0 && set fco=0 && set catskip=0 && set lfcs=0 && set lzerobyt=0 && set lfco=0 && set lcatskip=0 && set copybyt=0 && set lcopybyt=0 && if %SFN%==/SFN:@ && set makefil=0
 if not exist SFN && set lfnskip=0 && set sdlfnsk=0
 if exist LFN && set lfnskip=0 && set sdlfnsk=0 && set sdlfnf=0 && set sdlfnd=0
-#OLD# Workaround needed until FAT sees right free space on FAT32 partitions > 4GB
-#OLD#if exist tdevice && insmod (bd)/fatmini > nul || insmod (bd)/grubutil/fatmini > nul || insmod (bd)/grub/fatmini > nul || insmod /fatmini > nul || insmod /grubutil/fatmini > nul || insmod /grub/fatmini > nul || echo && FATMINI not found => FATCOPY.G4B /? && echo && goto :eov
 :mktdir
 ## Replace "/" in full target directory with space (2F => 20) for separate call arguments
 echo
@@ -352,7 +340,6 @@ if not exist lfndir && set lfndir=0
 set "argname=%~n1" &; set /a largname=%@retval% > nul &; call Fn.11 "%argname%" "\x3F" && pause --wait=0 "%argname%" > (md)%mdmem%+1 && cat --locate=\x3F --replace=\x3D --length=%largname% (md)%mdmem%+1 > nul && cat --length=%largname% (md)%mdmem%+1 | set argname= &; set "argname=%argname:~1,-1%"
 set "argext=%~x1" &; set /a largext=%@retval% > nul && if exist argext &; call Fn.11 "%argext%" "\x3F" && pause --wait=0 "%argext%" > (md)%mdmem%+1 && cat --locate=\x3F --replace=\x3D --length=%largext% (md)%mdmem%+1 > nul && cat --length=%largext% (md)%mdmem%+1 | set argext= &; set "argext=%argext:~1,-1%"
 set "arg=%argname%%%argext%"
-#MaybeNot#call :lfncatch &; set lfncatch=%lfncatch% &; if not %lfncatch%==1 && set /u arg=%arg%
 if exist LFN && set lfncatch=
 call :lfncatch &; if %utfcatch%==1 && set "gotomsg=echo UTF-8 characters in Source Directory not supported && goto :eov" && goto :eof
 if not exist SFN && if %lfncatch%==1 && set "gotomsg=echo %sdev%%%sd%%%arg% is a LFN-directory => FATCOPY.G4B /? && goto :eov" && goto :eof
@@ -361,14 +348,11 @@ if %lfncatch%==1 && set /a lfndir=%lfndir%+1 > nul && if exist LFN && fat info %
 if exist LFN && if %lfncatch%==1 && if exist sfnarg && setlocal && ATTRIBFT.LLL getlfn input="%output1%" "%sdev%/%sd%/%sfnarg%" &; if not exist result && endlocal ! endlocal && set "arg=%result%"
 if exist LFN && if not %LFN%==/LFN:@ && if not %lfncatch%==1 && fat info %sdev% > nul && setlocal && set /u higharg=%arg% &; ATTRIBFT.LLL getlfn input="%output1%" "%sdev%/%sd%/%higharg%" &; if not exist result && endlocal && set /u arg=%arg% ! endlocal && set "arg=%result%" && set higharg=%higharg%
 if %LFN%==/LFN:case && if not %lfncatch%==1 &; fat info %sdev% > nul |; setlocal && set /u higharg=%arg% &; if %higharg%==%arg% && endlocal ! endlocal && set higharg=%higharg%
-#BAD!#if exist SFN && if %lfncatch%==1 && setlocal && set tdev=%sdev%/ && set td=%sd% && call :lfn2sfn &; endlocal && set "lfnarg=%arg%" && set arg=%sfndir%
 set "sd=%sd%/%arg%" && if exist LFN &; if %lfncatch%==1 && if exist sfnarg && set /u "sfnsd=%sfnsd%/%sfnarg%" ! if exist higharg && set "sfnsd=%sfnsd%/%higharg%" ! set sfnsd=%sfnsd%/%arg%
 shift
 goto :parsesd
 ::
 :parsetd
-#OKE_45-50vars##echo -n > (md)0x302+60 && set > (md)0x302+60 && raw cat --locate=\x0A (md)0x302+60 > nul &; echo %0 NUMVARS=%@retval%
-echo -n > (md)0x302+60 && set > (md)0x302+60 && raw cat --locate=\x0A (md)0x302+60 > nul &; if %@retval%>=59 && echo %0 NUMVARS>=59
 if "%~1"=="" && goto :eof
 set "message=goto :eov"
 set arg= && set larg= && set argname= && set largname= && set argext= && set largext= && set argtilde= && set lfncatch= && set lfnarg= && set needKB= && set higharg=
@@ -377,19 +361,17 @@ set "argname=%~n1" &; set /a largname=%@retval% > nul &; call Fn.11 "%argname%" 
 set "argext=%~x1" &; set /a largext=%@retval% > nul && if exist argext &; call Fn.11 "%argext%" "\x3F" && pause --wait=0 "%argext%" > (md)%mdmem%+1 && cat --locate=\x3F --replace=\x3D --length=%largext% (md)%mdmem%+1 > nul && cat --length=%largext% (md)%mdmem%+1 | set argext= &; set "argext=%argext:~1,-1%"
 set "arg=%argname%%%argext%"
 ## Filter LFN 6x- max 8+3+1=12 still needed! Also: periods in argname, spaces and ms-dos forbidden-list, like '+'
-#MaybeNot#call :lfncatch &; set lfncatch=%lfncatch% &; if not %lfncatch%==1 && set /u arg=%arg%
 if exist LFN && set lfncatch=
 call :lfncatch &; if %utfcatch%==1 && set "gotomsg=echo UTF-8 characters in Target Directory not supported && goto :eov" && goto :eof
 if not exist SFN && if %lfncatch%==1 && set "gotomsg=echo %tdev%%%td%%%arg% is a LFN-directory => FATCOPY.G4B /? && goto :eov" && goto :eof
 if exist LFN && ATTRIBFT.LLL getsfn input="%output2%" "%tdev%%%td%%%arg%" &; if exist result && set "lfnarg=%arg%" && set arg=%result% && set result= && set "output2=%output%" && set output= &; echo -e Target directory exists:$[0x00]"$[]%tdev%%%lfntd%%%lfnarg%$[0x00]" %NULL% && set newdir=0 && goto :skipt
 if exist LFN && if %LFN%==/LFN:@ && ATTRIBFT.LLL getlfn input="%output2%" "%tdev%%%td%%%arg%" &; if exist result && set "lfnarg=%result%" && set result= && set "output2=%output%" && set output= &; echo -e Target directory exists:$[0x00]"$[]%tdev%%%lfntd%%%lfnarg%$[0x00]" %NULL% && set newdir=0 && goto :skipt
-if exist LFN && if not %lfncatch%==1 && ATTRIBFT.LLL getlfn input="%output2%" "%tdev%%%td%%%arg%" &; if exist result && set "lfnarg=%result%" && set /u higharg=%arg% && set result= && set "output2=%output%" && set output= &; echo -e Target directory exists:$[0x00]"$[]%tdev%%%lfntd%%%lfnarg%$[0x00]" %NULL% && set newdir=0 && goto :skipt
+if exist LFN && if not %lfncatch%==1 && ATTRIBFT.LLL getlfn input="%output2%" "%tdev%%%td%%%arg%" &; if exist result && set "lfnarg=%result%" && set /u r=%arg% && set result= && set "output2=%output%" && set output= &; echo -e Target directory exists:$[0x00]"$[]%tdev%%%lfntd%%%lfnarg%$[0x00]" %NULL% && set newdir=0 && goto :skipt
 if %LFN%==/LFN:@ && if not %lfncatch%==1 && if "%~2"=="" &; if not /i "%sdev%%%sdir%"=="%tdev%%%tdir:~1%" && call Fn.11 "%arg%" "~" && setlocal && set sdir=%sdir:~1,-1% && set arg=%arg% &; set /a arglen=%@retval% > nul &; call if /i %^sdir:~-%arglen%,%arglen%%%==%arg% && call :sfn@2lfn "%sdev%/%sdir%" "#" ! set lfnarg= &; if exist lfnarg && endlocal && set "lfnarg=%lfnarg%" ! endlocal
 if %LFN%==/LFN:@ && if not %lfncatch%==1 && if /i "%sdev%%%sdir%"=="%tdev%%%tdir:~1%" && call Fn.11 "%arg%" "~" && setlocal && call :sfn@2lfn "%tdev%%%td%%%arg%" "#" &; if exist lfnarg && endlocal && set "lfnarg=%lfnarg%" ! endlocal &; if exist lfnarg && goto :makelfndir ! goto :skiptd
 if %LFN%==/LFN:@ && if not %lfncatch%==1 && if /i "%sdev%%%sdir%"=="%tdev%%%tdir:~1%" && goto :skiptd
 if %LFN%==/LFN:case && if not %lfncatch%==1 && setlocal && set /u higharg=%arg% &; if %higharg%==%arg% && endlocal ! endlocal && set higharg=%higharg% && set lfnarg=%arg%
 if exist SFN && if %lfncatch%==1 && set "lfnarg=%arg%" && setlocal && set output1= && set output2= && call :lfn2sfn &; endlocal && set arg=%sfndir% && set lfprmptd=%lfprmptd% && set makefil=%makefil% && set r=%r% && set newdir=%newdir% &; if "%gotomsg:~0,5%"=="Abort" && set "gotomsg=set result=0 && echo Aborted by user %NULL% && goto :eov" && goto :eof
-#VAR>=60#if exist SFN && if %lfncatch%==1 && set "lfnarg=%arg%" && setlocal && call :lfn2sfn &; endlocal && set arg=%sfndir% && set lfprmptd=%lfprmptd% && set makefil=%makefil% && set r=%r% &; if "gotomsg:~0,5%"=="Abort" && set "gotomsg=set result=0 && echo Aborted by user %NULL% && goto :eov" && goto :eof
 ## Directory exists as filename
 if not exist LFN && set /u arg=%arg% ! if not %lfncatch%==1 && if not exist higharg && set /u arg=%arg%
 if exist %tdev%%%td%%%arg% && echo %tdev%%%td%%%arg% is an existing File Name %NULL% && set /a dirsize=%dirsize%+1 > nul && goto :eof
@@ -397,7 +379,6 @@ if exist %tdev%%%td%%%arg% && echo %tdev%%%td%%%arg% is an existing File Name %N
 if not %lfncatch%==1 && fat dir %tdev%%%td%%%arg% > nul && set newdir=0 &; if exist higharg && echo -e Target directory exists:$[0x00]"$[]%tdev%%%lfntd%%%higharg%$[0x00]" %NULL% ! if exist LFN && echo -e Target directory exists:$[0x00]"$[]%tdev%%%lfntd%%%arg%$[0x00]" %NULL% ! echo Target directory exists: %tdev%%%td%%%arg% %NULL% &; if exist higharg && goto :makelfndir ! goto :skipt
 if %lfncatch%==1 && setlocal && ATTRIBFT.LLL getsfn %tdev%%%lfntd%%%lfnarg% &; if exist result && endlocal ! endlocal && set /u higharg=%arg%
 if %lfncatch%==1 && fat dir %tdev%%%td%%%arg% > nul && set newdir=0 &; if exist higharg && echo -e Target directory exists:$[0x00]"$[]%tdev%%%lfntd%%%higharg%$[0x00]" %NULL% && goto :makelfndir ! if exist LFN && echo -e Target directory exists:$[0x00]"$[]%tdev%%%lfntd%%%lfnarg%$[0x00]" %NULL% && goto :skipt ! goto :skipt
-#DEBUG#if not %lfncatch%==1 &; if exist LFN && echo -e %act%make directory A %tdev%%%lfntd%%%arg% %NULL% ! echo %act%make directory A %tdev%%%td%%%arg% %NULL%
 if not %lfncatch%==1 &; if exist LFN && echo -e %act%make directory %tdev%%%lfntd%%%arg% %NULL% ! echo %act%make directory %tdev%%%td%%%arg% %NULL% &; set newdir=1
 ## Waitloop target directory
 set waittime=0
@@ -432,7 +413,6 @@ setlocal && set * && set mdmem=%mdmem% && set "file=%file%"
 set numspace= && set skip=0
 echo -n > (md)%mdmem%+1
 pause --wait=0 "%file%" > (md)%mdmem%+1
-#BadWithG4dOperators#pause --wait=0 %file% > (md)%mdmem%+1
 cat --locate=\x20 (md)%mdmem%+1 > nul ;; set /a numspace=%@retval% > nul
 if %numspace%==0 && endlocal && set "file=%file%" && goto :eof
 :spaceloop
@@ -538,7 +518,6 @@ set "arg=%~1" &; set /a larg=%@retval% > nul
 if %larg%==10 && if not %arg:~8,1%==. && if not %arg:~7,1%==. && if not %arg:~6,1%==. && shift
 set arg=%~1 &; if %arg:~2,1%==: && shift
 set arg=%~1 &; if %arg:~0,1%==< && if %arg:~-1,1%==> && set /u sfndir=%arg:~1,-1%
-#NowBadChoiceFromCOPYPLUS.G4B!#set arg=%~1 &; if %arg:~0,1%==< && if %arg:~-1,1%==> && set /l sfndir=%arg:~1,-1%
 ## Check sfndir & check "if not exist sfndir" to avoid later problems with @retval
 ## Check for '%'
 call Fn.11 "%~1" "\x25" &; echo -e %act%omit unsupported char '\x25' in $[0x00]"$[]%~1$[0x00]" && goto :skipcopy
@@ -554,16 +533,13 @@ set cmdline= && set lcmd=
 if exist wcn if exist wcx && if exist sfndir && goto :skipcopy
 ## Parse asterisk wildcard
 if exist name1 && set /l argname=%~n1 && setlocal && call :tstname1 "goto :skipcopy" &; endlocal && set "gotomsg=%gotomsg%" &; if exist gotomsg && %gotomsg%
-#BAD?#if exist name1 && set /l argname=%~n1 && setlocal && call :tstname1 "goto :skipcopy" &; endlocal && set "gotomsg=%gotomsg%" &; if exist gotomsg && %gotomsg%
 if exist ext1 && set /l argext=%~x1 && setlocal && call :testext1 "goto :skipcopy" &; endlocal && set "gotomsg=%gotomsg%" &; if exist gotomsg && %gotomsg%
-#BAD?#if exist ext1 && set /l argext=%~x1 && setlocal && call :testext1 "goto :skipcopy" &; endlocal && set "gotomsg=%gotomsg%" &; if exist gotomsg && %gotomsg%
 ## Filter noext: omit semicolon-seperated extensions
 if exist noext && set /u argext=%~x1 &; if exist argext && echo -n > (md)%mdmem%+1 && echo -e \x20 > (md)%mdmem%+1 &; if %noext:~0,5%==/ext: && pause --wait=0 %noext:~5% >> (md)%mdmem%+1 ! if %noext:~0,6%==/-ext: && pause --wait=0 %noext:~6% >> (md)%mdmem%+1
 if exist noext && if not exist argext && set /a lcatskip=%lcatskip%+1 > nul && set /a catskip=%catskip%+1 > nul && goto :skipcopy
 if exist noext && if exist argext && setlocal && cat (md)%mdmem%+1 | call :skipext &; echo -n > (md)%mdmem%+1 &; if exist gotomsg && endlocal && set /a lcatskip=%lcatskip%+1 > nul && set /a catskip=%catskip%+1 > nul && goto :skipcopy ! endlocal
 ## Parse special character anti-wildcard
 if exist x && set /l argname=%~n1 && setlocal && call :tstxname "goto :skipcopy" &; endlocal && set "gotomsg=%gotomsg%" &; if exist gotomsg && %gotomsg%
-#BAD?#if exist x && set /l argname=%~n1 && setlocal && call :tstxname "goto :skipcopy" &; endlocal && set "gotomsg=%gotomsg%" &; if exist gotomsg && %gotomsg%
 ## Get filesize of source & avoid Error 2
 ## Modified to show directories without /s
 if %LFN%==/LFN:@ && call Fn.11 "%arg%" "~" && setlocal &; if exist sfndir && call :sfn@2lfn "%source%%%cd%%%sfndir%" "#" ! call :sfn@2lfn "%source%%%cd%%%arg%" "@" &; endlocal && set "lfnarg=%lfnarg%" &; if %source%==%target% && goto :makelfnfile@ ! if exist sfndir && if exist lfnarg && goto :makelfnfile@ ! if exist sfndir && goto :skip
@@ -590,8 +566,8 @@ if %copy%==S && set prompt=0 && set copy= && set /a lcatskip=%lcatskip%+1 > nul 
 ## Messages and skipcopy if needed
 if exist prompt && if %prompt%==0 && if exist %target%%%cd%%%arg% && set /a catskip=%catskip%+1 > nul && set /a lcatskip=%lcatskip%+1 > nul && echo %act%skip %arg% %NULL% && goto :skipcopy
 if exist o && if exist %target%%%cd%%%arg% && set /a fco=%fco%+1 > nul && set /a lfco=%lfco%+1 > nul && echo %act%overwrite %arg% %NULL%
-if not exist o && if not exist copy && echo %act%copy %arg% %NULL%
-if not exist prompt && if not exist copy &; if exist %target%%%cd%%%arg% || echo %act%copy %arg% %NULL%
+if not exist file2 && if not exist o && if not exist copy && echo %act%copy %arg% %NULL%
+if not exist file2 && if not exist prompt && if not exist copy &; if exist %target%%%cd%%%arg% || echo %act%copy %arg% %NULL%
 ## Negative argsize with almost 4 GB-file, above 0x7FFFFFF same limitations CALC & @retval ??
 ## Read-out: debug 1 ## cat --length=0 %target%%%td%%%arg% | argsize= ## debug 0 ## set /a argsize=%argsize:~12% > nul
 ## %?% doesn't work for filesize on 0.4.6a, %@retval% only!
@@ -603,36 +579,24 @@ if %t%==/t && goto :floopend
 ## Actual copying: without skipcopy after FAT errorcheck (with: change #)
 errorcheck off
 if %copy%==Y && if not %t%==/t &; fat copy /o %source%%%cd%%%arg% %target%%%cd% > nul |; set /a needKB=%argsize%>>10+1 > nul &; call :faterror "copy /o %source%%%cd%%%arg% %target%%%cd%" "goto :skipcopy" "%target%%%cd%%%arg%" &; if exist gotomsg && %gotomsg%
-#DEBUG#if %copy%==Y && if not %t%==/t &; fat copy /o %source%%%cd%%%arg% %target%%%cd% > nul |; set /a needKB=%argsize%>>10+1 > nul &; echo A needKB=%needKB% && call :faterror "copy /o %source%%%cd%%%arg% %target%%%cd%" "goto :skipcopy" "%target%%%cd%%%arg%" &; echo B needKB=%needKB% &; if exist gotomsg && %gotomsg%
 errorcheck off
 if not %copy%==Y && if not %t%==/t &; fat copy /o %source%%%cd%%%arg% %target%%%cd% > nul |; set /a needKB=%argsize%>>10+1 > nul &; call :faterror "copy /o %source%%%cd%%%arg% %target%%%cd%" "goto :skipcopy" "%target%%%cd%%%arg%" &; if exist gotomsg && %gotomsg%
-#DEBUG#if not %copy%==Y && if not %t%==/t &; fat copy /o %source%%%cd%%%arg% %target%%%cd% > nul |; set /a needKB=%argsize%>>10+1 > nul &; echo A needKB=%needKB% && call :faterror "copy /o %source%%%cd%%%arg% %target%%%cd%" "goto :skipcopy" "%target%%%cd%%%arg%" &; echo B needKB=%needKB% &; if exist gotomsg && %gotomsg%
 ## Always verify with crc32
 if exist v && goto :fdverify
 if %copyloop%>=4 && echo Skip %source%%%cd%%%arg% && set /a fcf=%fcf%+1 > nul && set /a lfcf=%lfcf%+1 > nul && goto :skipcopy
 set argcrc32= &; raw crc32 %source%%%cd%%%arg% | set argcrc32= &; if exist argcrc32 && set /A argcrc32=0x%argcrc32% > nul
-#BAD#if not %i%==/i && raw crc32 %source%%%cd%%%arg% | set argcrc32= &; set /A argcrc32=0x%argcrc32% > nul
 set copycrc3= &; raw crc32 %target%%%cd%%%arg% | set copycrc3= &; if exist copycrc3 && set /A copycrc3=0x%copycrc3% > nul
-#BAD#if not %i%==/i && raw crc32 %target%%%cd%%%arg% | set copycrc3= &; set /A copycrc3=0x%copycrc3% > nul
 if %argcrc32%>=1 && if %copycrc3%>=1 &; if %argcrc32%==%copycrc3% || echo %source%%%cd%%%arg% crc32: %argcrc32% and %target%%%td%%%file2% crc32: %copycrc3% are not equal && set /a copyloop=%copyloop%+1 > nul && goto :fdcploop
 :fdverify
 ## with /v verify with cmp
 if not exist v && goto :floopend
 if %copyloop%>=4 && echo Skip %source%%%cd%%%arg% && set /a fcf=%fcf%+1 > nul && set /a lfcf=%lfcf%+1 > nul && goto :skipcopy
 cmp %source%%%cd%%%arg% %target%%%cd%%%arg% > nul || echo %source%%%cd%%%arg% and %target%%%cd%%%arg% are not equal && set /a copyloop=%copyloop%+1 > nul && goto :fdcploop
-#BAD#if not %i%==/i && cmp %source%%%cd%%%arg% %target%%%cd%%%arg% > nul || echo %source%%%cd%%%arg% and %target%%%cd%%%arg% are not equal && set /a copyloop=%copyloop%+1 > nul && goto :fdcploop
 :floopend
-#ORG#echo :floopend copyattr=%copyattr%
-#NEW: always copy modification date/time, unless switch '/n' is in use#
 if not %copymdt%==N && if not %copyattr%==Y &; setlocal && call :copyattributes "%source%%%cd%%%arg%" "%target%%%cd%%%arg%" &; endlocal && set "output1=%output1%" && set "output2=%output2%"
 if %copyattr%==Y &; setlocal && call :copyattributes "%source%%%cd%%%arg%" "%target%%%cd%%%arg%" &; endlocal && set "output1=%output1%" && set "output2=%output2%"
-#ORG#if %copyattr%==Y && setlocal && call :copyattributes "%source%%%cd%%%arg%" "%target%%%cd%%%arg%" &; endlocal && set "output1=%output1%" && set "output2=%output2%"
 if %i%==/i &; if %copyattr%==Y && if %copyattr%==Y && if %argcrc32%>=0x1 && if %copycrc3%>=0x1 && if %argcrc32%==%copycrc3% && goto :skipcopy
 set /a lfcs=%lfcs%+1 > nul && set /a fcs=%fcs%+1 > nul && set /a lcopybyt=%lcopybyt%+%argsize% > nul && set /a copybyt=%copybyt%+%argsize% > nul
-#DEBUG#echo :floopend A output1="%output1%
-#DEBUG#echo :floopend A output2="%output2%
-#DEBUG#echo :floopend B output1="%output1%
-#DEBUG#echo :floopend B output2="%output2%
 :makelfnfile@
 if %LFN%==/LFN:@ && if exist lfnarg && setlocal && ATTRIBFT.LLL getsfn input="%output2%" "%target%%%cd%%%lfnarg%" &; if exist result && endlocal && set lfnarg= && if exist sfndir && goto :skip ! endlocal
 if %LFN%==/LFN:@ && if exist lfnarg && setlocal &; if exist sfndir && ATTRIBFT.LLL getlfn input="%output2%" "%target%%%cd%%%sfndir%" ! ATTRIBFT.LLL getlfn input="%output2%" "%target%%%cd%%%arg%" &; if exist result && endlocal && set lfnarg= && if exist sfndir && goto :skip ! endlocal
@@ -666,20 +630,15 @@ set cmdline= && set lcmd=
 if %LFN%==/LFN:@ && if exist sfndir && call Fn.11 "%sfndir%" "~" && setlocal && call :sfn@2lfn "%source%%%cd%%%sfndir%" "#" &; endlocal && set "lfnarg=%lfnarg%" &; if %source%==%target% && goto :fskipmld
 ## Existence target directory
 fat dir %target%%%cd%%%sfndir% > nul &; if %LFN%==/LFN:@ && goto :fskipmld ! echo Target directory exists: %target%%%cd%%%sfndir%/ %NULL% && goto :fskipmld
-## Existence filename same as subdirectory- xcopy finishes here too
+## Existence filename same as subdirectory - xcopy finishes here too
 set dirsize=
 if exist %target%%%cd%%%sfndir% > nul && echo Error: subdirectory: <%sfndir%> is an already existing file! && goto :fdendloc
-#bad#fat dir %target%%%cd%%%sfndir% > nul &; set dirsize=1
-#bad#if %dirsize%>=1 && echo Error: subdirectory: <%sfndir%> is an already existing file!
 ## Output-message
-#DEBUG#echo %act%make directory B %target%%%cd%%%sfndir% %NULL% && if %t%==/t && set /a msds=%msds%+1 > nul && goto :fskipmld
 echo %act%make directory %target%%%cd%%%sfndir% %NULL% && if %t%==/t && set /a msds=%msds%+1 > nul && goto :fskipmld
 ## Waitloop make subdirectory
 set waittime=0
 :fdmd
-#bad#set waittime=0
 ## Using FAT error-handling without:  > nul ||"
-#MAYBE#if not %t%==/t && fat mkdir %target%%%cd%%%sfndir% || echo Error: make target directory %tdev%%%td%%%arg%/ && set "gotomsg=%message%" && goto :eof
 fat mkdir %target%%%cd%%%sfndir%
 pause --wait=%waittime%
 if exist v && if %waittime%>=7 && echo make directory failed: %target%%%cd%%%sfndir% && set /a msdf=%msdf%+1 > nul && goto :fskipmld
@@ -705,13 +664,13 @@ goto :fdcopy
 :lscpa
 ## ls-based directory-parsing
 errorcheck off
-if exist file1 && call :lscopy %file1%%%suffix%
+if exist file1 && ls %source%%%sd%%%file1%%%suffix% | call :lscopy &; goto :eof
 ## Always/already after source & sd
-if not exist file1 && ls %source%%%sd% > (md)%mdmem%+%callsect% > nul
-if not exist file1 && cat --locate=\x00 --number=1 (md)%mdmem%+%callsect% > nul &; set parselen=%?%
-if not exist file1 &; if exist parselen && set /A parselen=%parselen% > nul ! set /A parselen=%callsect% * 0x200 > nul
-if not exist file1 && cat --locate=\x3D --replace=\x3F --length=%parselen% (md)%mdmem%+%callsect% > nul
-if not exist file1 && set parselen= && cat (md)%mdmem%+%callsect% | call :lscopy
+ls %source%%%sd% > (md)%mdmem%+%callsect% > nul
+cat --locate=\x00 --number=1 (md)%mdmem%+%callsect% > nul &; set parselen=%?%
+if exist parselen && set /A parselen=%parselen% > nul ! set /A parselen=%callsect% * 0x200 > nul
+cat --locate=\x3D --replace=\x3F --length=%parselen% (md)%mdmem%+%callsect% > nul
+set parselen= && cat (md)%mdmem%+%callsect% | call :lscopy
 if exist maxfiles && if %fcs%>=%maxfiles% && goto :eof
 if exist maxbyte && if exist gotomsg3 && %gotomsg3%
 setlocal && call :cleanmd %mdmem% %callsect% &; endlocal
@@ -769,7 +728,6 @@ if not %filesize%==0 &; raw cat --length=0 %source%%%sd%%%arg% || set fulldir=%a
 call Fn.11 "%arg%" "\x25" && echo -e %act%omit unsupported char '\x25' in:$[0x00]"$[]%arg%$[0x00]" && goto :skip1 ! set ARG=
 if exist fulldir && if %s%==/s && goto :lssubdir
 if not exist LF && if exist fulldir && if /i "%arg%"=="lost+found" && goto :skip1
-#OLD#set lflag=1
 ## Test max command-line length AFTER call :lfn2sfn, 255 is SFN-only
 ## Filter LFN 6x- max 8+3+1=12 still needed! Also: periods in argname, spaces and ms-dos forbidden-list, like '+'
 call :lfncatch &; if %utfcatch%==1 && echo -e $[0x00]"$[]%act%omit %arg% (UTF-8 characters)$[0x00]" && goto :skip1 ! if %argnum%>=1 && if not %sourceok%==ISO9660 && if not %sourceok%==UDF && set argnum= && set lfncatch=1
@@ -799,12 +757,11 @@ if exist noext && if exist argext && setlocal && cat (md)%mdmem%+1 | call :skipe
 set gotomsg=
 ## Filter anti-wildcard
 if %SFN%==/SFN:@ &; if "%x:~-1,1%"=="@" && goto :nofilter
-#NEEDED=POSSIBLE???# ! if "%x:~-2,1%"=="@" && goto :nofilter ! if "%x:~-3,1%"=="@" && goto :nofilter ! if "%x:~-4,1%"=="@" && goto :nofilter ! if "%x:~-5,1%"=="@" && goto :nofilter
 if exist x && setlocal && call :tstxname "goto :skip1" &; endlocal && set "gotomsg=%gotomsg%" &; if exist gotomsg && %gotomsg%
 set gotomsg=
 :nofilter
 set message= && set larg= && set largname= && set largext=
-if exist file1 && if not /i "%arg%"=="%file1%%%suffix%" && goto skip1
+if exist file1 &; if not /i "%arg%"=="%file1%%%suffix%" && goto :skip1
 ## Placement empty directory/zero-byte file omit AFTER LFN-filter ##=tested
 if %filesize%==0 && if not exist z && set /a zerobyt=%zerobyt%+1 > nul && set /a lzerobyt=%lzerobyt%+1 > nul && echo -e %act%omit$[0x00]"$[]%arg%$[0x00]"$[]%zeromsg% %NULL% && goto :skip1
 if exist fulldir &; ls %source%%%sd%%%fulldir%/ > nul || set emdirfil=1
@@ -815,10 +772,8 @@ set emdirfil=
 if exist fulldir && goto :skip1
 set filesize=
 ## Negative argsize with almost 4 GB-file, above 0x7FFFFFF same limitations CALC & @retval ??
-## %?% doesn't work for filesize on 0.4.6a, %@retval% only!
-#TEST=BAD##
+## %?% doesn't work for filesize on 0.4.6a, %@retval% only! #TEST=BAD##
 raw cat --length=0 %source%%%sd%%%arg%
-#WHY???#if not %argnum%>=1 && raw cat --length=0 %source%%%sd%%%arg%
 set /a argsize=%@retval%&0xffffffff > nul
 if not %argsize%<=%freebyte% && setlocal && set /a needKB=%argsize%>>10+1 > nul && set /a freeKB=%freebyte%>>10 &; if %freeKB%<=1 && echo Target is full && endlocal && goto :eof ! echo -e %act%skip %arg% (needed %needKB%KB, available %freeKB%KB) && endlocal && goto :skip1
 set gotomsg=
@@ -829,19 +784,17 @@ if exist maxbyte && setlocal && set /a copybyt=%copybyt%+%argsize% > nul &; if n
 ## Start LFN2SFN
 if exist file2 && set "file2=%file2%" &; set /a lfile2=%@retval% > nul &; call Fn.11 "%file2%" "\x3F" && pause --wait=0 "%file2%" > (md)%mdmem%+1 && cat --skip=1 --locate=\x3F --replace=\x3D --length=%lfile2% (md)%mdmem%+1 > nul && cat --skip=1 --length=%lfile2% (md)%mdmem%+1 | set file2= &; call Fn.11 "%file2%" "\x20" && echo -e "%file2%" | set file2 &; set "file2=%file2:~1,-1%"
 set lfile2=
-if exist LFN && if exist file2 && setlocal && ATTRIBFT.LLL getsfn input="%output1%" "%target%%%td%%%file2%" &; if exist result && endlocal && set sfnfile2=%result% ! endlocal
+if exist LFN && if exist file2 && setlocal && ATTRIBFT.LLL getsfn input="%output2%" "%target%%%td%%%file2%" &; if exist result && endlocal && set sfnfile2=%result% ! endlocal
 if exist file2 && if not exist sfnfile2 && setlocal && call :splitarg "%file2%" &; set "argname=%name%" && set "argext=%ext%" && set "arg=%file2%" && set lfncatch= && call :lfncatch &; if %lfncatch%==1 && if not exist SFN && echo -e Target-file %file2% is LFN => FATCOPY.G4B /? && endlocal && set result=0 && goto :eof ! if %lfncatch%==1 && endlocal && set "argname2=%argname%" && set "argext2=%argext%" && set "lfnfile2=%file2%" && set lfncatch=1 ! if %argnum%>=1 && if not %sourceok%==ISO9660 && if not %sourceok%==UDF && endlocal && set "argname2=%argname%" && set "argext2=%argext%" && set "lfnfile2=%file2%" && set lfncatch=1 ! endlocal && set FILE2=%file2% && set argname2=%argname% && set argext2=%argext%
 if exist SFN && if exist lfnfile2 && setlocal && set "argname=%argname2%" && set "argext=%argext2%" && set "arg=%lfnfile2%" && set lfncatch=1 && set file2= && call :lfn2sfn &; if exist FILE2 && endlocal && set file2=%FILE2% && set r=%r% && set newdir=%newdir% && set promt=%prompt% && set lfprmptf=%lfprmptf% ! endlocal && set r=%r% && set prompt=%prompt% && set lfprmptf=%lfprmptf% && echo -e Target SFN of %lfnfile2% not available && set result=0 && goto :eof
 if not exist SFN && if %lfncatch%==1 && set "file=%arg%" && call :nolspace
 if not exist SFN && if %lfncatch%==1 && set "echoarg=%file%" && set file=
 if %argnum%>=32768 && set /a lcatskip=%lcatskip%+1 > nul && set /a catskip=%catskip%+1 > nul && echo -e File Number Suffix above 32767 is not supported: %act%skip %arg% %NULL% && goto :skip1
 if exist wcn if exist wcx && if not exist SFN && if %lfncatch%==1 && set /a lfnskip=%lfnskip%+1 > nul && goto :skip1
-#OLD#if exist wcn if exist wcx && if not exist SFN && if %lfncatch%==1 && set /a lfnskip=%lfnskip%+1 > nul && set lflag=1 && goto :skip1
 if not exist SFN && if %lfncatch%==1 && set /a lfnskip=%lfnskip%+1 > nul && echo -e %act%omit LFN:$[0x00]"$[]%echoarg%$[0x00]"$[]%zeromsg% %zero2msg% %NULL% && goto :skip1
-#OLD#if not exist SFN && if %lfncatch%==1 && set /a lfnskip=%lfnskip%+1 > nul && set lflag=1 && echo -e %act%omit LFN:$[0x00]"$[]%echoarg%$[0x00]"$[]%zeromsg% %zero2msg% %NULL% && goto :skip1
 set zeromsg= && set zero2msg=
 if exist LFN && if %lfncatch%==1 && if %sourceok:~0,3%==FAT && setlocal && ATTRIBFT.LLL getsfn input="%output1%" "%sfnsrc%%%arg%" &; if exist result && endlocal && set sfnarg=%result% ! endlocal
-if exist LFN && if not exist file2 && setlocal && ATTRIBFT.LLL getsfn input="%output1%" "%target%%%td%%%arg%" &; if exist result && endlocal && set sfnfile2=%result% ! endlocal
+if exist LFN && if not exist file2 && setlocal && ATTRIBFT.LLL getsfn input="%output2%" "%target%%%td%%%arg%" &; if exist result && endlocal && set sfnfile2=%result% ! endlocal
 if exist SFN && if %lfncatch%==1 && if not exist sfnarg && if not exist sfnfile2 && set "lfnarg=%arg%" && setlocal &; if exist lfnfile2 && set "argname=%argname2%" && set "argext=%argext2%" && set "LFNFILE2=%lfnfile2%" && set lfnfile2= ! set lfnfile2= &; call :lfn2sfn &; endlocal && set argsize=%argsize% && set lfprmptf=%lfprmptf% && set prompt=%prompt% && set o=%o% && set fco=%fco% && set lfco=%lfco% && set lcatskip=%lcatskip% && set catskip=%catskip% && set makefil=%makefil% && set "gotomsg=%gotomsg%" && set file2=%file2% && set r=%r% && set newdir=%newdir% &; if exist LFN && set file2=%file2% ! set file2= &; if exist gotomsg && %gotomsg%
 ## :lfn2sfn allows max source=511 char's instead of 255
 set "cmdline=%source%%%sd%%%arg%" &; set /a lcmd=%@retval% > nul
@@ -852,7 +805,6 @@ if %i%==/i && if not exist sfnarg && raw crc32 %source%%%sd%%%arg% | set argcrc3
 if exist file1 && if not "%file1%"=="%file2%" && if exist sfnfile2 && setlocal && ATTRIBFT.LLL getlfn input="%output2%" "%target%%%td%%%file2%" &; if exist result && if "%result%"=="%file2%" && endlocal && set "lfnfile2=%result%" ! if exist result && if not "%result%"=="%file2%" && endlocal && set "lfnfile2=%file2%" && set "dellfn2=%result%" ! endlocal
 if exist sfnfile2 &; if not "%file2%"=="%sfnfile2%" && set file2=%sfnfile2% ! set lfnfile2=
 if exist sfnfile2 && if not %LFN%==/LFN:case && set lfnfile2= && set dellfn2=
-#BAD#if exist sfnfile2 &; if "%file2%"=="%sfnfile2%" && if exist lfnfile2 && set "dellfn2=%lfnfile2%" && set lfnfile2= ! set file2=%sfnfile2%
 if exist file2 && if %i%==/i && raw crc32 %target%%%td%%%file2% | set copycrc3= &; if exist copycrc3 && set /A copycrc3=0x%copycrc3% > nul
 if not exist file2 && if %i%==/i && if exist sfnarg && raw crc32 %target%%%td%%%sfnarg% | set copycrc3= &; if exist copycrc3 && set /A copycrc3=0x%copycrc3% > nul
 if not exist file2 && if %i%==/i && if not exist sfnarg && raw crc32 %target%%%td%%%arg% | set copycrc3= &; if exist copycrc3 && set /A copycrc3=0x%copycrc3% > nul
@@ -863,7 +815,6 @@ if not exist file2 && if %argnum%>=1 && if not exist argext && set argext=%argna
 if not exist file2 && if %argnum%>=1 && setlocal && call :semicol &; if exist file && endlocal && set /u file2=%file% ! endlocal &; if exist file2 &; if not %i%==/i && set copyloop=0 && goto :lscploop ! if %i%==/i && if %argcrc32%>=0x1 && if %copycrc3%>=0x1 && if not %argcrc32%==%copycrc3% && set copyloop=0 && goto :lscploop
 if %i%==/i && if %argcrc32%>=0x1 && if %copycrc3%>=0x1 && if %argcrc32%==%copycrc3% && set /a lcatskip=%lcatskip%+1 > nul && set /a catskip=%catskip%+1 > nul && echo -e %act%skip %arg% %NULL% &; if exist LFN && goto :makelfnfile ! if %copyattr%==Y && goto: lloopend ! goto :skip1
 if exist prompt && if %prompt%==1 && if not %o%==/o && if exist %target%%%td%%%file2% && set askcopy=Y
-#OKE_53vars##echo -n > (md)0x302+60 && set > (md)0x302+60 && raw cat --locate=\x0A (md)0x302+60 > nul &; echo %0 NUMVARS=%@retval% && cat --locate=\x0A --replace=\x20 (md)0x302+60 && raw cat (md)0x302+60 && echo && echo -n && pause Press a Key to Continue... && echo
 if %askcopy%==Y && if exist file1 && echo -e Do you want to overwrite %file2%? && set /p:90 /u "copy= (Y=yes N=no)" &; set copy=%copy:~0,1% && echo
 if %askcopy%==Y && if not exist file1 && echo -e Do you want to overwrite %file2%? && set /p:90 /u "copy= (Y=yes N=no A=all S=skip)" &; set copy=%copy:~0,1% && echo
 if %askcopy%==Y && if not %copy%==Y && if not %copy%==N && if not %copy%==A && if not %copy%==S && set /a lcatskip=%lcatskip%+1 > nul && set /a catskip=%catskip%+1 > nul && echo &; if exist sfnarg && echo -e %act%skip %sfnarg% %NULL% && goto :skip1 ! echo -e %act%skip %arg% %NULL% && goto :skip1
@@ -875,13 +826,11 @@ if %copy%==S && set prompt=0 && set copy= && set /a catskip=%catskip%+1 > nul &&
 ## Messages and skip1 if needed
 if %prompt%==0 && if exist %target%%%td%%%file2% && set /a catskip=%catskip%+1 > nul && set /a lcatskip=%lcatskip%+1 > nul &; if exist sfnarg && echo -e %act%skip %sfnarg% %NULL% && goto :skip1 ! echo -e %act%skip %arg% %NULL% && goto :skip1
 if exist o && if exist %target%%%td%%%file2% && set /a fco=%fco%+1 > nul && set /a lfco=%lfco%+1 > nul && echo -e %act%overwrite %file2% %NULL%
-if %o%==/o &; if exist %target%%%td%%%file2% |; if exist sfnarg && echo -e %act%copy %sfnarg% %NULL% ! echo -e %act%copy %arg% %NULL%
+if not exist file2 && if %o%==/o &; if exist %target%%%td%%%file2% |; if exist sfnarg && echo -e %act%copy %sfnarg% %NULL% ! echo -e %act%copy %arg% %NULL%
 if exist file1 &; if not exist o && if not exist copy &; if not /i %file1%==%file2% && if exist sfnarg && echo -e %act%copy %sfnarg% => %file2% %NULL% ! if not /i %file1%==%file2% && echo -e %act%copy %arg% => %file2% %NULL% ! echo -e %act%copy %arg%
 if not exist file1 &; if not exist o && if not exist copy &; if exist sfnarg && echo -e %act%copy %sfnarg% %NULL% ! echo -e %act%copy %arg% %NULL%
 if exist file1 &; if not exist prompt && if not exist copy && if not /i %file1%==%file2% &; if exist %target%%%td%%%file2% |; if exist sfnarg && echo -e %act%copy %sfnarg% => %file2% %NULL% ! echo -e %act%copy %arg% => %file2% %NULL%
-#BAD#if not exist prompt && if not exist copy && if exist targfile && if exist %target%%%td%%%arg% || echo -e %act%copy %arg% %targfile% %NULL%
 if %argsize%==0 && if exist z &; set gotomsg= && setlocal && set waittime=0 &; if not exist file2 && set file2=%arg% ! set file2=%file2% &; call :fatmkfile2 &; if "%gotomsg%"=="goto :skip1" && echo -e %act%skip %source%%%sd%%%arg% %NULL% && endlocal && set catskip=%catskip% && set lcatskip=%lcatskip% && goto :skip1 ! if exist LFN && endlocal && goto :makelfnfile ! endlocal && goto :lloopend
-#BAD#if %argsize%==0 && if exist z &; setlocal && set waittime=0 &; if not exist file2 && set file2=%arg% ! set file2=%file2% &; call :fatmkfile &; if "%gotomsg%"=="goto :skip1" && echo -e %act%skip %source%%%cd%%%arg% %NULL% && endlocal && set catskip=%catskip% && set lcatskip=%lcatskip% && goto :skip1 ! if exist LFN && endlocal && goto :makelfnfile ! endlocal && goto :lloopend
 ## Verify if v=/v
 set copyloop=0
 :lscploop
@@ -907,44 +856,32 @@ if %t%==/t &; if exist LFN && goto :makelfnfile ! goto :lloopend
 if exist v && goto :lsverify
 if %copyloop%>=4 && if exist sfnarg && echo -e %act%skip %sfnsrc%%%sfnarg% %NULL% && set /a lcatskip=%lcatskip%+1 > nul && set /a catskip=%catskip%+1 > nul && goto :skip1
 if %copyloop%>=4 && if not exist sfnarg && echo -e %act%skip %source%%%sd%%%arg% %NULL% && set /a lcatskip=%lcatskip%+1 > nul && set /a catskip=%catskip%+1 > nul && goto :skip1
-#BAD#if %copyloop%>=4 && echo -e %act%skip %source%%%sd%%%arg% %NULL% && set /a lcatskip=%lcatskip%+1 > nul && set /a catskip=%catskip%+1 > nul && goto :skip1
 if exist sfnarg && set argcrc32= &; raw crc32 %sfnsrc%%%sfnarg% | set argcrc32= &; if exist argcrc32 && set /A argcrc32=0x%argcrc32% > nul
 if not exist sfnarg && set argcrc32= &; raw crc32 %source%%%sd%%%arg% | set argcrc32= &; if exist argcrc32 && set /A argcrc32=0x%argcrc32% > nul
 set copycrc3= &; raw crc32 %target%%%td%%%file2% | set copycrc3= &; if exist copycrc3 && set /A copycrc3=0x%copycrc3% > nul
-#BAD?#if not %i%==/i && raw crc32 %source%%%sd%%%arg% | set argcrc32= &; set /A argcrc32=0x%argcrc32% > nul
-#BAD?#if not %i%==/i && raw crc32 %target%%%td%%%file2% | set copycrc3= &; set /A copycrc3=0x%copycrc3% > nul
 if %argcrc32%>=1 && if %copycrc3%>=1 && if %argcrc32%==%copycrc3% |; if exist sfnarg && echo -e %sfnsrc%%%sfnarg% crc32: %argcrc32% and %target%%%td%%%file2% crc32: %copycrc3% are not equal ! echo -e %source%%%sd%%%arg% crc32: %argcrc32% and %target%%%td%%%file2% crc32: %copycrc3% are not equal &; set /a copyloop=%copyloop%+1 > nul && goto :lscploop
-#BAD#if %argcrc32%>=1 && if %copycrc3%>=1 &; if %argcrc32%==%copycrc3% || echo -e %source%%%sd%%%arg% crc32: %argcrc32% and %target%%%td%%%file2% crc32: %copycrc3% are not equal && set /a copyloop=%copyloop%+1 > nul && goto :lscploop
 :lsverify
 ## with /v verify with cmp
 if not exist v &; if not exist LFN && goto :lloopend ! goto :makelfnfile
 if %copyloop%>=4 && echo -e Skip %source%%%sd%%%arg% && set /a fcf=%fcf%+1 > nul && set /a lfcf=%lfcf%+1 > nul && goto :skip1
 if exist sfnarg &; cmp %sfnsrc%%%sfnarg% %target%%%td%%%file2% > nul || echo -e %sfnsrc%%%sfnarg% and %target%%%td%%%arg% are not equal && set /a copyloop=%copyloop%+1 > nul && goto :lscploop
 if not exist sfnarg &; cmp %source%%%sd%%%arg% %target%%%td%%%file2% > nul || echo -e %source%%%sd%%%arg% and %target%%%td%%%arg% are not equal && set /a copyloop=%copyloop%+1 > nul && goto :lscploop
-#BAD#if not %i%==/i && cmp %source%%%cd%%%arg% %target%%%cd%%%file2% > nul || echo %source%%%cd%%%arg% and %target%%%cd%%%arg% are not equal && set /a copyloop=%copyloop%+1 > nul && goto :lscploop
 :makelfnfile
-#BAD#if %lfncatch%==1 && echo :lscopy A arg=%arg% file2=%file2% snfarg=%sfnarg% lfnfile2=%lfnfile2%
 if not exist LFN && goto :lloopend
-#MAYBE#if exist sfnfile2 && if exist dellfn2 && echo %act%delete file LFN: %dellfn2% %NULL% && if not %t%==/t && setlocal && ATTRIBFT.LLL dellfn input="%output2%" "%target%%%td%%%dellfn2%" &; if exist result && endlocal ! if exist message && echo $[0x00]"$[]%message%$[0x00]" && endlocal && goto :lloopend ! echo Can not delete %dellfn2% && endlocal && goto :lloopend
 if exist sfnfile2 && if exist dellfn2 && echo -e %act%delete file LFN: %dellfn2% %NULL% && if not %t%==/t && setlocal && ATTRIBFT.LLL dellfn input="%output2%" "%target%%%td%%%dellfn2%" &; if exist result && endlocal ! if exist message && echo $[0x00]"$[]%message%$[0x00]" && endlocal && goto :lloopend ! echo -e Can not delete %dellfn2% && endlocal && goto :lloopend
 if exist sfnfile2 && if not exist lfnfile2 && goto :lloopend
 if exist FILE2 && set lfncatch=
 if %argnum%>=1 &; if not %sourceok%==ISO if not %sourceok%==UDF |; setlocal && set "file=%arg%" && call :semicol &; endlocal && set "arg=%file%" &; if not %lfncatch%==1 && call :lfncatch &; if %utfcatch%==1 && echo -e %act%omit$[0x00]"$[]%arg%$[0x00]"$[](UTF-8 characters) && goto :skip1
-if %LFN%==/LFN:case && if not %lfncatch%==1 && if not exist lfnfile2 && setlocal &; if exist argname2 && set /u higharg=%argname2%%%argext2% ! set /u higharg=%arg% &; if exist argname2 && if %higharg%==%argname2%%%argext2% && endlocal ! if exist argname2 && endlocal && set file2=%higharg% && set lfnfile2=%argname2%%%argext2% && set lfncatch=1 ! if %higharg%==%arg% && endlocal ! endlocal && set arg=%higharg% && set lfnarg=%arg% && set lfncatch=1 && set higharg=%higharg%
+if %LFN%==/LFN:case && if not %lfncatch%==1 && if not exist lfnfile2 && setlocal &; if exist argname2 && set /u higharg=%argname2%%%argext2% ! set /u higharg=%arg% &; if exist argname2 && if %higharg%==%argname2%%%argext2% && endlocal ! if exist argname2 && endlocal && set file2=%higharg% && set lfnfile2=%argname2%%%argext2% && set lfncatch=1 ! if %higharg%==%arg% && endlocal ! endlocal && set arg=%higharg% && set file2=%higharg% && set lfnarg=%arg% && set lfncatch=1 && set higharg=%higharg%
 if exist lfnfile2 &; call Fn.11 "%lfnfile2%" "$[" && call Fn.11 "%lfnfile2%" "]" && pause --wait=0 %act%omit unsupported chars '$[' and ']' in "%lfnfile2%"  && goto :skip1
 if not %lfncatch%==1 && if exist lfnarg &; call Fn.11 "%lfnarg%" "$[" && call Fn.11 "%lfnarg%" "]" && pause --wait=0 %act%omit unsupported chars '$[' and ']' in "%lfnarg%" && goto :skip1
 if not %lfncatch%==1 && if exist sfnarg &; call Fn.11 "%arg%" "$[" && call Fn.11 "%arg%" "]" && pause --wait=0 %act%omit unsupported chars '$[' and ']' in "%arg%" && goto :skip1
 ## Only make case-LFN on fat if exist on source
 if %LFN%==/LFN:case && if exist higharg && if %sourceok:~0,3%==FAT && setlocal && ATTRIBFT.LLL getlfn input="%output1%" "%source%%%sd%%%higharg%" &; if not exist result && endlocal && set lfncatch= && set lfnfile2= && set lfnarg= && set higharg= ! endlocal
-## Only 'copy' ntcasebyte if not copyattr=Y & 8+3 case-LFN [if LFN=/LFN:case & if %lfncatch%==1 & if exist higharg]
-#DEBUG#setlocal && ATTRIBFT.LLL getntcasebyte input="%output2%" "%target%%%td%%%arg%" &; echo 3 result=%result% && endlocal
-#OKE#echo :makelfnfile copyattr=%copyattr%
-#NEW#
+## Only 'copy' ntcasebyte if not copyattr=Y & 8+3 case-LFN [if LFN=/LFN:case & if %lfncatch%==1 & if exist higharg
 if not %copymdt%==N && if not %copyattr%==Y &; if %lfncatch%==1 && if %sourceok:~0,3%==FAT && setlocal &; if exist sfnarg && call :copyattributes "%sfnsrc%%%sfnarg%" "%target%%%td%%%file2%" ! if exist LFN && call :copyattributes "%sfnsrc%%%arg%" "%target%%%td%%%file2%" ! call :copyattributes "%source%%%sd%%%arg%" "%target%%%td%%%file2%" &; if %success%==Y && endlocal ! endlocal
-#ORG#
 if %copyattr%==Y && if %lfncatch%==1 && if %sourceok:~0,3%==FAT && setlocal &; if exist sfnarg && call :copyattributes "%sfnsrc%%%sfnarg%" "%target%%%td%%%file2%" ! if exist LFN && call :copyattributes "%sfnsrc%%%arg%" "%target%%%td%%%file2%" ! call :copyattributes "%source%%%sd%%%arg%" "%target%%%td%%%file2%" &; if %success%==Y && endlocal ! endlocal
 if exist LFN && if %lfncatch%==1 && if exist sfnarg && if %sfnarg%==%file2% &; setlocal && ATTRIBFT.LLL getlfn input="%output2%" "%target%%%td%%%sfnarg%" &; if exist result && endlocal && set lfncatch= && set lfnfile2= ! endlocal
-#BAD#if exist LFN && if %lfncatch%==1 && if exist sfnarg &; setlocal && ATTRIBFT.LLL getlfn input="%output2%" "%target%%%td%%%sfnarg%" &; if exist result && endlocal && set lfncatch= && set lfnfile2= ! endlocal
 if exist LFN && if exist lfnfile2 && if not exist dellfn2 &; setlocal && ATTRIBFT.LLL getlfn input="%output2%" "%target%%%td%%%file2%" &; if exist result && endlocal && set lfncatch= && set lfnfile2= ! endlocal
 if not %lfncatch%==1 if not exist lfnfile2 |; if exist LFN &; if exist lfnfile2 && echo -e %act%make file LFN:$[0x00]"$[]%lfnfile2%$[0x00]" $[0x08]%file2% ! if exist lfnarg && echo -e %act%make file LFN:$[0x00]"$[]%lfnarg%$[0x00]" $[0x08]%file2% %NULL% ! if exist sfnarg && echo -e %act%make file LFN:$[0x00]"$[]%arg%$[0x00]" $[0x08]%sfnarg% %NULL% ! echo -e %act%make file LFN:$[0x00]"$[]%arg%$[0x00]" $[0x08]%file2% %NULL% &; if %t%==/t && set /a sdlfnf=%sdlfnf%+1
 if not %t%==/t && if exist LFN && if %lfncatch%==1 && if exist sfnarg && if not exist lfnfile2 &; setlocal && ATTRIBFT.LLL makelfn input="%output2%" "%target%%%td%%%arg%" "%sfnarg%" &; if not exist result && echo -e Make file LFN:$[0x00]"$[]%arg%$[0x00]"$[]failed && echo $[0x00]"$[]%message%$[0x00]" && endlocal && set /a lfnskip=%lfnskip%+1 > nul ! if exist message && endlocal ! endlocal && set /a sdlfnf=%sdlfnf%+1
@@ -955,16 +892,9 @@ if not %copymdt%==N && if not %copyattr%==Y &; if not exist lfncatch && if %sour
 if %copyattr%==Y && if not exist lfncatch && if %sourceok:~0,3%==FAT && setlocal &; if exist sfnarg && call :copyattributes "%sfnsrc%%%sfnarg%" "%target%%%td%%%file2%" ! if exist LFN && call :copyattributes "%sfnsrc%%%arg%" "%target%%%td%%%file2%" ! call :copyattributes "%source%%%sd%%%arg%" "%target%%%td%%%file2%" &; if %success%==Y && if not exist LFN && endlocal && set "output1=%output1%" && set "output2=%output2%" ! if %success%==Y && endlocal ! endlocal
 if %i%==/i &; if %argcrc32%>=0x1 && if %copycrc3%>=0x1 && if %argcrc32%==%copycrc3% && set /a lcatskip=%lcatskip%+1 > nul && set /a catskip=%catskip%+1 > nul && echo -e %act%skip %arg% %NULL% && goto :skip1
 set /a lfcs=%lfcs%+1 > nul && set /a fcs=%fcs%+1 > nul && set /a lcopybyt=%lcopybyt%+%argsize% > nul && set /a copybyt=%copybyt%+%argsize% > nul
-#OLD#set /a lfcs=%lfcs%+1 > nul && set /a fcs=%fcs%+1 > nul && set lflag=1 && set /a lcopybyt=%lcopybyt%+%argsize% > nul && set /a copybyt=%copybyt%+%argsize% > nul
-#DEBUG#echo :lloopend copyattr=%copyattr% sourceok=%sourceok% sfnsrc=%sfnsrc% arg=%arg% sfnarg=%sfnarg% file1=%file1% file2=%file2% %^target%%%^td%%%^file2%=%target%%%td%%%file2%
-#DEBUG#echo :lloopend A output1="%output1%
-#DEBUG#echo :lloopend A output2="%output2%
-#BADDF#if %copyattr%==Y && if not exist lfncatch && if %sourceok:~0,3%==FAT && setlocal &; if exist sfnarg && call :copyattributes "%sfnsrc%%%sfnarg%" "%target%%%td%%%file2%" ! call :copyattributes "%source%%%sd%%%arg%" "%target%%%td%%%file2%" &; if %success%==Y && if not exist LFN && endlocal && set ""output1=%output1%"" && set "output2=%output2%"" ! if %success%==Y && endlocal ! endlocal
-#DIFFUCULT2ECHO#echo "if %copyattr%==Y && if %sourceok:~0,3%==FAT && setlocal &; if exist sfnarg && call :copyattributes "%sfnsrc%%%sfnarg%" "%target%%%td%%%file2%" ! call :copyattributes "%source%%%sd%%%arg%" "%target%%%td%%%file2%" &; if %success%==Y && if not exist LFN && endlocal && set "output1=%output1%" && set "output2=%output2%" ! if %success%==Y && endlocal ! endlocal
-#DEBUG#echo :lloopend B output1="%output1%
-#DEBUG#echo :lloopend B output2="%output2%
 :skip1
-set arg= && set larg= && set argname= && set largname= && set argext= && set largext= && set argnum= && set argsize= && set argcrc32= && set echofdir= && set copy= && set askcopy= && set file2= && set copyloop= && set copycrc3= && set gotomsg= && set argtilde= && set srccrc32= && set tgtcrc32= && set zeromsg=
+if exist file1 &; if /i "%arg%"=="%file1%%%suffix%" && goto :eof
+set arg= && set larg= && set argname= && set largname= && set argext= && set largext= && set argnum= && set argsize= && set argcrc32= && set echofdir= && set copy= && set askcopy= && set copyloop= && set copycrc3= && set gotomsg= && set argtilde= && set srccrc32= && set tgtcrc32= && set zeromsg=
 set sfnarg= && set lfnarg= && set utfcatch= && set lfnfile2= && set needKB= && set higharg= && set ntcase= && set sfnfile2= && set dellfn2=
 shift
 goto :lscopy
@@ -978,7 +908,6 @@ set larg= && set largname= && set largext=
 ## Local output-count messages - errors not needed with FAT errorcheck (without: change #)
 ## lflag etc. still needed? = NO
 if %lfcs%==0 if %lfco%==0 if %lcatskip%==0 || echo Files copied/overwritten/skipped: %lfcs%/%lfco%/%lcatskip% %NULL% %echomsg%
-#OLD#if %lflag%==1 && if %lfcs%==0 if %lfco%==0 if %lcatskip%==0 || echo Files copied/overwritten/skipped: %lfcs%/%lfco%/%lcatskip% %NULL% %echomsg%
 ## Reset local counters
 set lfcs=0 && set lzerobyt=0 && set lfco=0 && set lcatskip=0 && set lcopybyt=0
 ## ls gives error with LFN, empty directory and with zero-byte file too
@@ -992,19 +921,15 @@ if not exist echofdir && set "echofdir=%source%%%sd%%%fulldir%"
 if %sourceok%==NTFS && if not %e%==/e &; ls %source%%%sd%%%fulldir%/ > nul || set /a sdsk=%sdsk%+1 > nul && set /a lsdsk=%lsdsk%+1 > nul && echo -e %act%omit empty directory/zero-byte file:$[0x00]"$[]%echofdir%$[0x00]" %NULL% && goto :lsendloc
 if not exist SFN && if %lfncatch%==1 && set /a sdlfnsk=%sdlfnsk%+1 > nul && echo -e %act%omit directory$[0x00]"$[]%echofdir%/$[0x00]" %NULL% && goto :lsendloc
 set echofdir=
-#MaybeNot#if not %lfncatch%==1 && if exist fulldir && set /u sfndir=%fulldir% && set /u fulldir=%fulldir%
 if exist LFN && ls %target%%%td%%%fulldir% > nul && setlocal && ATTRIBFT.LLL getsfn input="%output2%" "%target%%%td%%%fulldir%" &; if not exist result && endlocal && set "lfndir=%fulldir%" ! endlocal && set sfndir=%result%
-#BAD#if exist LFN && if not %lfncatch%==1 && setlocal && ATTRIBFT.LLL getlfn input="%output2%" "%target%%%td%%%fulldir%" &; if exist result && endlocal && set fulldir=%result% && set /u sfndir=%fulldir% ! endlocal
 if exist LFN && if not exist sfndir && if %sourceok:~0,3%==FAT && setlocal && ATTRIBFT.LLL getsfn input="%output1%" "%source%%%sd%%%fulldir%" &; if exist result && endlocal && set sfndir=%result% ! endlocal
 if exist LFN && if exist sfndir && fat dir %target%%%td%%%sfndir% > nul && setlocal && ATTRIBFT.LLL getlfn input="%output2%" "%target%%%td%%%sfndir%" &; if exist result && endlocal && set "lfndir=%result%" ! endlocal && set "lfndir=%fulldir%"
-#NONEED#if not %lfncatch%==1 && if exist lfndir && if %lfndir%==%fulldir% && set lfndir=
 if not %lfncatch%==1 && if exist fulldir && if not exist sfndir && set /u sfndir=%fulldir%
 if exist SFN && if %lfncatch%==1 && if not exist sfndir && setlocal && set output1= && set output2= && call :lfn2sfn &; endlocal && set sfndir=%sfndir% && set lfprmptd=%lfprmptd% && set makefil=%makefil% && set r=%r% && set newdir=%newdir% && set echoD=%echoD% &; if "%gotomsg:~0,5%"=="Abort" && echo Aborted by user %NULL% && set lastkey=Q && goto :lsendloc ! if exist t && goto :makelfndirectory
 ## Max cmd-length with room for one filename
 set "cmdline=%target%%%td%%%sfndir%" &; set /a lcmd=%@retval% > nul
 if %lcmd%>=260 && echo $[0x0F]Error: command-line is too long, %lcmd% chars && echo -e %act%omit make directory$[0x00]"$[]%cmdline%$[0x00]" && goto :lsendloc
 echo "%cmdline%" > (md)%mdmem%+1 && cat --locate=/ --length=%lcmd% (md)%mdmem%+1 > nul &; if %@retval%>=20 && echo $[0x0F]Error: path is too deep, >= 19 directories && echo -e %act%omit make directory$[0x00]"$[]%cmdline%$[0x00]" && pause --wait=1 && goto :lsendloc
-#LATER#set cmdline= && set lcmd=
 if %sourceok%==NTFS && if %e%==/e &; ls %source%%%sd%%%fulldir%/ > nul || set /a sdsm=%sdsm%+1 > nul && goto :mdall
 :mdall
 ## Existence filename same as target directory
@@ -1015,19 +940,13 @@ if %dirsize%>=1 && echo Error: target directory is an existing filename && goto 
 if not %lfncatch%==1 && if exist sfndir && fat dir %target%%%td%%%sfndir% > nul && set newdir=0 &; if exist LFN && if "%fulldir%"=="%sfndir%" && echo -e Target directory exists:$[0x00]"$[]%lfntgt%%%sfndir%$[0x00]" %NULL% ! if exist LFN && echo -e Target directory exists:$[0x00]"$[]%lfntgt%%%fulldir%$[0x00]" %NULL% ! echo Target directory exists: %target%%%td%%%sfndir% %NULL% &; if %LFN%==/LFN:case && if not "%fulldir%"=="%sfndir%" && goto :makelfndirectory ! goto :lskipmcd
 if exist lfndir && set "cmdline=%lfntgt%%%lfndir%" ! if exist LFN && set "cmdline=%lfntgt%%%fulldir%" &; set /a lcmd=%@retval% > nul &; if %lcmd%>=260 && echo $[0x0F]Error: command-line is too long, %lcmd% chars && echo -e %act%omit make directory$[0x00]"$[]%cmdline%$[0x00]" && set cmdline= && set lcmd= && goto :lsendloc
 if %lfncatch%==1 && if exist sfndir && fat dir %target%%%td%%%sfndir% > nul && set newdir=0 &; if exist lfndir && echo -e Target directory exists:$[0x00]"$[]%lfntgt%%%lfndir%$[0x00]" %NULL% ! if exist LFN && echo -e Target directory exists:$[0x00]"$[]%lfntgt%%%fulldir%$[0x00]" %NULL% ! set lfndir= &; if exist lfndir && goto :makelfndirectory ! goto :lskipmcd
-#DEBUG#if exist sfndir &; if %lfncatch%==1 && if not %SFN%==/SFN:@ && echo -e %act%make directory B1 %lfntgt%%%sfndir% %NULL% ! if not %lfncatch%==1 && echo %act%make directory B2 %target%%%td%%%sfndir% %NULL%
 if exist sfndir &; if %lfncatch%==1 && if not %SFN%==/SFN:@ && if not exist echoD && echo -e %act%make directory %lfntgt%%%sfndir% %NULL% ! if not %lfncatch%==1 && echo %act%make directory %target%%%td%%%sfndir% %NULL% ! if exist echoD && set echoD= &; set newdir=1
-#DEBUG#if exist sfndir &; if %lfncatch%==1 && if not %SFN%==/SFN:@ && if not exist echoD && echo -e A %act%make directory %lfntgt%%%sfndir% %NULL% ! if not %lfncatch%==1 && echo B %act%make directory %target%%%td%%%sfndir% %NULL% ! if exist echoD && set echoD= &; set newdir=1
-#BAD#if exist sfndir && if %lfncatch%==1 && echo -e %act%make directory %lfntgt%%%sfndir% %NULL% ! if exist sfndir && echo %act%make directory %target%%%td%%%sfndir% %NULL%
-#bad#if not %lfncatch%==1 && if exist sfndir &; if exist LFN && echo -e %act%make directory %lfntgt%%%sfndir% %NULL% ! echo %act%make directory %target%%%td%%%sfndir% %NULL%
 ## Waitloop make subdirectory
 set waittime=0
 :lsmd
 ## Using FAT error-handling without: > nul || (or change #)
 if not %t%==/t && if exist sfndir && fat mkdir %target%%%td%%%sfndir%
 ## Fallback to non-auto with switch /w:n
-#BAD#if %LFN%==/LFN:case && if %lfncatch%==1 && if %sourceok:~0,3%==FAT && if exist higharg && setlocal && ATTRIBFT.LLL getntcasebyte input="%output1%" "%sfnsrc%%%arg%" &; endlocal && set ntcase=%result% &; if not %ntcase%==0x8 if not %ntcase%==0x10 if not %ntcase%==0x18 |; setlocal && ATTRIBFT.LLL setntcasebyte input="%output2%" "%target%%%td%%%arg%" "%ntcase%" &; if %result%==1 && endlocal && set lfncatch= && set ntcase= ! endlocal && set ntcase=
-#BAD#$if %t%==/t && if %lfncatch%==1 && if exist LFN && echo -e make directory LFN:$[0x00]"$[]%fulldir%$[0x00]" $[0x08]%sfndir% %NULL% && set /a sdlfnd=%sdlfnd%+1 > nul && goto :makelfndirectory
 if %t%==/t && set /a msds=%msds%+1 > nul &; if exist LFN && goto :makelfndirectory ! goto :lskipmcd
 if exist waittime && pause --wait=%waittime%
 if %waittime%>=7 && if exist sfndir && echo make directory failed: %target%%%td%%%sfndir% && set /a msdf=%msdf%+1 > nul && goto :lsendloc
@@ -1041,7 +960,6 @@ if exist LFN && if %lfncatch%==1 && if not exist lfnarg &; call Fn.11 "%fulldir%
 if %LFN%==/LFN:case && if exist higharg && if %sourceok:~0,3%==FAT && setlocal && ATTRIBFT.LLL getlfn input="%output1%" "%source%%%sd%%%higharg%" &; if not exist result && endlocal && set lfncatch= && set lfnarg= && set higharg= ! endlocal
 if %LFN%==/LFN:case && if %lfncatch%==1 && if %sourceok:~0,3%==FAT && if exist higharg && setlocal && ATTRIBFT.LLL getntcasebyte input="%output1%" "%sfnsrc%%%arg%" &; endlocal && set ntcase=%result% &; if not %ntcase%==0x8 && if not %ntcase%==0x10 && if not %ntcase%==0x18 && set ntcase= ! if %t%==/t && set ntcase= && set lfncatch= && set higharg=
 if %LFN%==/LFN:case && if exist ntcase &; setlocal && ATTRIBFT.LLL setntcasebyte input="%output2%" "%target%%%td%%%arg%" "%ntcase%" &; if %result%==1 && endlocal && set lfncatch= && set ntcase= ! endlocal && set ntcase=
-#BAD#if %LFN%==/LFN:case && if %lfncatch%==1 && if %sourceok:~0,3%==FAT && if exist higharg && setlocal && ATTRIBFT.LLL getntcasebyte input="%output1%" "%sfnsrc%%%arg%" &; endlocal && set ntcase=%result% &; if not %ntcase%==0x8 if not %ntcase%==0x10 if not %ntcase%==0x18 |; setlocal && ATTRIBFT.LLL setntcasebyte input="%output2%" "%target%%%td%%%arg%" "%ntcase%" &; if %result%==1 && endlocal && set lfncatch= && set ntcase= ! endlocal && set ntcase=
 if %lfncatch%==1 && if exist LFN &; setlocal && ATTRIBFT.LLL getlfn input="%output2%" "%target%%%td%%%sfndir%" &; if exist result && endlocal && set lfncatch= ! endlocal
 if exist LFN && if %lfncatch%==1 &; if exist higharg && echo -e %act%make directory LFN:$[0x00]"$[]%lfnarg%$[0x00]" $[0x08]%higharg% %NULL% ! echo -e %act%make directory LFN:$[0x00]"$[]%fulldir%$[0x00]" $[0x08]%sfndir% %NULL% &; if %t%==/t && set /a sdlfnd=%sdlfnd%+1 > nul && goto :lskipmcd
 if exist LFN && if %lfncatch%==1 && setlocal && ATTRIBFT.LLL makelfn input="%output2%" "%target%%%td%%%fulldir%" "%sfndir%" &; if not exist result && echo -e Make directory LFN$[0x00]"$[]%lfntgt%%%fulldir%$[0x00]"$[]failed && echo $[0x00]"$[]%message%$[0x00]" && endlocal && set /a sdlfnsk=%sdlfnsk%+1 ! if exist message && endlocal ! endlocal && set /a sdlfnd=%sdlfnd%+1
@@ -1054,7 +972,6 @@ if %SFN%==/SFN:@ && if exist argtilde && if not %case% "%arg%"=="%argtilde%" && 
 if %SFN%==/SFN:@ && if exist argtilde && if %t%==/t && if exist %source%%%sd%%%argtilde% && echo save %argtilde% %NULL% && set /a makefil=%makefil%+1 > nul && set argtilde= && goto :lsmd
 if %SFN%==/SFN:@ && if exist argtilde && if not %t%==/t && if exist %source%%%sd%%%argtilde% && echo %act%copy %argtilde% (saved LFN) %NULL% && set needKB= &; fat copy /o %source%%%sd%%%argtilde% %target%%%td% && set target=%target% ! set needKB=1 &; if %needKB%==1 && call :faterror "copy /o %source%%%sd%%%argtilde% %target%%%td%" "goto :lskiptld" "%target%%td%%%argtilde%" &; if exist gotomsg && %gotomsg% ! if exist %target%%%td%%%argtilde% && set /a makefil=%makefil%+1 > nul && set argtilde=
 if %copyattr%==Y && if %sourceok:~0,3%==FAT && if exist sfndir && setlocal && set copyattr=a &; if exist LFN && call :copyattributes "%sfnsrc%%%sfndir%" "%target%%%td%%%sfndir%" ! call :copyattributes "%source%%%sd%%%sfndir%" "%target%%%td%%%sfndir%" &; if %success%==Y && endlocal && set "output1=%output1%" && set "output2=%output2%" ! endlocal
-#BAD#if %copyattr%==Y && if exist sfndir && if %sourceok:~0,3%==FAT && setlocal && set copyattr=a && call :copyattributes "%sfnsrc%%%sfndir%" "%target%%%td%%%sfndir%" &; if %success%==Y && if not exist LFN && endlocal && set ""output1=%output1%"" && set "output2=%output2%"" ! if %success%==Y && endlocal ! endlocal
 :lskiptld
 set waittime= && set argtilde= && set srccrc32= && set tgtcrc32=
 errorcheck off
@@ -1069,8 +986,6 @@ call :lscpa
 ## Preserve Total output-counts
 endlocal && set msds=%msds% && set msdf=%msdf% && set sdsm=%sdsm% && set sdsk=%sdsk% && set fcs=%fcs% && set lfnskip=%lfnskip% && set catskip=%catskip% && set fco=%fco% && set o=%o% && set prompt=%prompt% && set lfprmptd=%lfprmptd% && set lfprmptf=%lfprmptf% && set sdlfnsk=%sdlfnsk% && set copybyt=%copybyt% && set makefil=%makefil% && set sdlfnf=%sdlfnf% && set sdlfnd=%sdlfnd% && set zerobyt=%zerobyt% && set freebyt=%freebyt% && set lastkey=%lastkey% && set r=%r%
 shift
-## Experimental
-#OLD#set lflag=0
 goto :lscopy
 ::
 :cleanmd
@@ -1240,7 +1155,6 @@ goto :eof
 :lfncatch
 setlocal
 ## Filter LFN 6x- max 8+3+1=12 still needed! Also: periods in argname and ms-dos forbidden list, like+
-#BAD#echo :lfncatch argname=%argname% argext=%argext% arg=%arg%
 :lfncatchloop
 if not "%~1"=="" && set "argname=%~n1" && set "argext=%~x1" &; set "arg=%argname%%%argext%" && shift
 if not exist tdev if not exist fulldir || goto :skipscol
@@ -1251,7 +1165,6 @@ if exist argnum && if not exist argext && if %argnum%>=1 && if %argnum%<=32767 &
 if %argnum%>=1 && if %argnum%<=32767 && if exist argext && set "arg=%file%" && set "argext=%fileext%"
 :skipscol
 if not exist arg if not exist fulldir |; setlocal &; if exist arg && echo -e "%arg%" | set file= ! if exist fulldir && echo -e "%fulldir%" | set file= &; set "file=%file:~1,-1%" &; set "file=%file:~0,12%" &; set /a lfile=%@retval% > nul && call :utfcatch &; if %utfcatch%==1 && endlocal && endlocal && set utfcatch=1 && goto :eof ! endlocal
-#BAD(inconsistent results)#setlocal && echo -e %arg% | set file= &; set "file=%file:~1,12%" &; set /a lfile=%@retval% > nul &; if %lfile%==1 && if %file:~0,1%>=0x80 && endlocal && endlocal && set utfcatch=1 && goto :eof ! if %lfile%==2 && if %file:~1,1%>=0x80 && endlocal && endlocal && set utfcatch=1 && goto :eof ! if %lfile%==3 && if %file:~2,1%>=0x80 && endlocal && endlocal && set utfcatch=1 && goto :eof ! if %lfile%==4 && if %file:~3,1%>=0x80 && endlocal && endlocal && set utfcatch=1 && goto :eof ! if %lfile%==5 && if %file:~4,1%>=0x80 && endlocal && endlocal && set utfcatch=1 && goto :eof ! if %lfile%==6 && if %file:~5,1%>=0x80 && endlocal && endlocal && set utfcatch=1 && goto :eof ! if %lfile%==7 && if %file:~6,1%>=0x80 && endlocal && endlocal && set utfcatch=1 && goto :eof ! if %lfile%==8 && if %file:~7,1%>=0x80 && endlocal && endlocal && set utfcatch=1 && goto :eof ! if %lfile%==9 && if %file:~8,1%>=0x80 && endlocal && endlocal && set utfcatch=1 && goto :eof ! if %lfile%==10 && if %file:~9,1%>=0x80 && ####endlocal && endlocal && set utfcatch=1 && goto :eof ! if %lfile%==11 && if %file:~10,1%>=0x80 && endlocal && endlocal && set utfcatch=1 && goto :eof ! if %lfile%==12 && if %file:~11,1%>=0x80 && endlocal && endlocal && set utfcatch=1 && goto :eof ! endlocal
 set "arg=%arg%" &; set /a larg=%@retval% > nul
 set "argname=%argname%" &; set /a largname=%@retval% > nul
 set "argext=%argext%" &; set /a largext=%@retval% > nul
@@ -1420,14 +1333,10 @@ if not exist tdev if not exist fulldir && goto :skipaskd
 if %lfprmptd%==2 && goto :skipaskd
 if not exist lfprmptd && fat dir %target%%%td%%%file2% > nul && set /a tildenum=%tildenum%+1 > nul && goto :tildechk
 if not exist lfprmptd && echo %act%make directory %target%%%td%%%file2% %NULL% && set newdir=1 && goto :skipaskd
-#DEBUG#if not exist lfprmptd && echo C %act%make directory %target%%%td%%%file2% %NULL% && set newdir=1 && goto :skipaskd
 set askcopyd= && set copyd=
 if %lfprmptd%==1 && fat dir %target%%%td%%%file2% > nul && set askcopyd=Y
 ## Read-out LFN directory-name with SFN:@ if #-SFN exists ('~'=7E, '#'=23)
-#DEBUG#fat dir %target%%%td%%%file2% > nul || echo %act%make directory D %target%%%td%%%file2% %NULL%
-#BAD#fat dir %target%%%td%%%file2% > nul |; if not exist t && echo >make directory %target%%%td%%%file2% %NULL% && set newdir=1 ! set newdir=1
 set echoD= && fat dir %target%%%td%%%file2% > nul || echo %act%make directory %target%%%td%%%file2% %NULL% && set newdir=1 && if not %SFN%==/SFN:@ && if not exist t && set echoD=Y
-#DEBUG#set echoD= && fat dir %target%%%td%%%file2% > nul || echo D %act%make directory %target%%%td%%%file2% %NULL% && set newdir=1 && if not %SFN%==/SFN:@ && if not exist t && set echoD=Y
 if %SFN%==/SFN:@ && if %askcopyd%==Y && echo Target directory exists: %target%%%td%%%file2%/ && set newdir=0 && setlocal && call :readlfn \x7E \x23 &; endlocal && set tildenum=%tildenum% && set "gotomsg=%gotomsg%" && set file2=%file2% &; if exist gotomsg && %gotomsg%
 if %SFN%==/SFN:@ && if %askcopyd%==Y && if %newdir%==0 && set /p:90 /u "copyd= Do you want to make next SFN (Y=yes N=no A=allways S=skip Q=quit)?" &; set copyd=%copyd:~0,1% && echo
 if not %SFN%==/SFN:@ && if %askcopyd%==Y && if %newdir%==0 && echo Directory %file2% exists on target && set /p:90 /u "copyd= Do you want to make next SFN (Y=yes N=no A=allways S=skip Q=Quit)?" &; set copyd=%copyd:~0,1% && echo
@@ -1463,10 +1372,7 @@ if not %i%==/i && if %copyf%==S && set lfprmptf=2 && goto :skipaskf
 if not %SFN%==/SFN:@ && if %i%==/i && if %askcopyf%==Y && set /a tildenum=%tildenum%+1 > nul && goto :tildechk
 set askcopyf= && set copyf=
 :skipaskf
-echo -n > (md)0x302+60 && set > (md)0x302+60 && raw cat --locate=\x0A (md)0x302+60 > nul &; if %@retval%>=59 && echo %0 NUMVARS>=59
-#OKE_55vars##echo -n > (md)0x302+60 && set > (md)0x302+60 && raw cat --locate=\x0A (md)0x302+60 > nul &; if %@retval%>=55 && echo %0 NUMVARS>=55 && pause KEY...
 set gotomsg=
-#BAD#if exist tdev && set sfndir=%file2% && set file2= &; goto :nolfnver
 if exist tdev &; fat dir %target%%%td%%%file2% > nul && goto :nolfnver ! set sfndir=%file2% && goto :eof
 if "%arg%"=="%fulldir%" &; fat dir %target%%%td%%%file2% > nul && goto :nolfnver ! set sfndir=%file2% && goto :eof
 if exist lfnfile2 && set "FILE2=%file2%" && set file2= && goto :eof
@@ -1475,15 +1381,12 @@ set argext=
 set tildenum=
 :skiptilde
 ## MAX PATH =260 C:\ + directories INCLUDING 255 chars LFN = 260 chars oke including (fd0)/
-#WRONG# Source tested up to a depth of 22 directories of 8-9 chars plus 255 chars LFN = 460 chars oke including (fd0)/
 set if=
 set "if=%source%%%sd%%%arg%" &; set /a lif=%@retval% > nul
 if %lif%>=260 && echo -e Error: source command-line is too long (%lif%) %act%omit$[0x00]"$[]%if%$[0x00]" %NULL% && set if= && set "gotomsg=goto :skip1" && goto :eof
-#WRONG#if %lif%>=512 && echo -e Error: source command-line is too long (%lif%) %act%omit$[0x00]"$[]%if%$[0x00]" %NULL% && set if= && set "gotomsg=goto :skip1" && goto :eof
 set if= && set lif= && set of=
 set "of=%target%%%td%%%file2%" &; set /a lof=%@retval% > nul
 if %lof%>=260 && echo -e Error: target command-line is too long (%lof%) %act%omit$[0x00]"$[]%of%$[0x00]" %NULL% && set of= && set if= && set "gotomsg=goto :skip1" && goto :eof
-#OLD#if %lof%>=256 && echo -e Error: target command-line is too long (%lof%) %act%omit$[0x00]"$[]%of%$[0x00]" %NULL% && set of= && set if= && set "gotomsg=goto :skip1" && goto :eof
 set of= && set lof=
 set file1=
 set file1=%source%%%sd%%%arg%
@@ -1493,8 +1396,8 @@ if %SFN%==/SFN:@ && if %i%==/i && set "file=%arg%" && call :nolspace
 if %SFN%==/SFN:@ && if %i%==/i && set "echoarg=%file%" && set file=
 if not exist echoarg && set echoarg=%arg%
 if not exist %target%%%td%%%file2% && echo -e %act%copy %echoarg% => %file2% %NULL% &; if %t%==/t && goto :nolfnver ! set waittime=0 && goto :fatmkfile
-#DEBUG#if not exist %target%%%td%%%file2% && echo -e A argsize=%argsize% %act%copy %echoarg% => %file2% %NULL% &; if %t%==/t && goto :nolfnver ! set waittime=0 && goto :fatmkfile
 set askover= && set copyo=
+pause %0 B arg=%arg% file1=%file1% file2=%file2%
 if exist prompt && if %prompt%==1 && if not %o%==/o && if exist %target%%%td%%%file2% && set /a askover=1 > nul
 if %askover%==1 && echo Do you want to overwrite %file2%? && set /p:90 /u "copyo= (Y=yes N=no A=all S=skip)" &; set copyo=%copyo:~0,1% && echo
 if %askover%==1 && if not %copyo%==Y && if not %copyo%==N && if not %copyo%==A && if not %copyo%==S && set copyo= && echo %act%omit %file2% %NULL% && set "gotomsg=goto :skip1" && goto :eof
@@ -1506,7 +1409,6 @@ if exist prompt && if %prompt%==0 && if exist %target%%%td%%%file2% && set /a lc
 if %o%==/o && if exist %target%%%td%%%file2% && set copyo=Y
 if %copyo%==Y && if not %t%==/t &; fat del %target%%%td%%%file2% || set /a lcatskip=%lcatskip%+1 > nul && set /a catskip=%catskip%+1 > nul && echo Error: delete %target%%%td%%%file2% && goto :eof
 set verloop=1
-#old#:ddloop
 if %copyo%==Y && set /a fco=%fco%+1 > nul && set /a lfco=%lfco%+1 > nul && echo -e %act%overwrite %echoarg% => %file2% %NULL%
 set copyo=
 ## Negative argsize with almost 4 GB-file, above 0x7FFFFFF same limitations CALC & @retval ??
@@ -1518,13 +1420,8 @@ if %argsize%==0 && if not exist z &; echo -e %act%omit$[0x00]"$[]%file1%$[0x00]"
 if %t%==/t && goto :nolfnver
 if exist %target%%%td%%%file2% && ls %target%%%td%%%file2% &; fat del %target%%%td%%%file2% > nul || echo Rollback error: can not delete %target%%%td%%%file2% > nul && set "gotomsg=goto :skip1" && set /a lcatskip=%lcatskip%+1 > nul && set /a catskip=%catskip%+1 > nul && goto :eof
 set waittime=0
-#OLD#set waittime=1
 :fatmkfile
-#DEBUG#echo :fatmkfile file1=%file1% %^target%%%^td%%%^file2%=%target%%%td%%%file2% argsize=%argsize%
-#DEBUG#echo -n > (md)0x302+60 && set > (md)0x302+60 && raw cat --locate=\x0A (md)0x302+60 > nul &; if %@retval%>=59 && echo :fatmkfile NUMVARS>=59
 if %argsize%==0 && if exist z &; if not exist o if not %copy%==Y |; if exist %target%%%td%%%file2% &; if %SFN%==/SFN:@ && goto :nolfnver ! goto :eof
-#BAD???#if %argsize%==0 && if exist z &; if not exist o if not %copy%==Y |; if exist %target%%%td%%%file2% &; if not exist ls && goto :eof ! goto :nolfnver
-#NotGoodWithLFN#if exist z &; if not exist o if not %copy%==Y |; if exist %target%%%td%%%file2% &; fat del %target%%%td%%%file2% > nul |; if %waittime%<=3 && set /a waittime=%waittime%+1 > nul && goto :fatmkfile ! echo Can not delete %target%%%td%%%file2% > nul && set "gotomsg=goto :skip1" && set /a lcatskip=%lcatskip%+1 > nul && set /a catskip=%catskip%+1 > nul && goto :eof
 fat mkfile size=%argsize% %target%%%td%%%file2% > nul
 if %@retval%==0 && pause --wait=%waittime% &; if not exist %target%%%td%%%file2% && set /a waittime=%waittime%+1 > nul &; if %waittime%<=3 && goto :fatmkfile ! echo Can not make %target%%%td%%%file2% && set "gotomsg=goto :skip1" && set /a lcatskip=%lcatskip%+1 > nul && set /a catskip=%catskip%+1 > nul && goto :eof
 if exist %target%%%td%%%file2% && pause --wait=%waittime% &; set /a waittime=%waittime%+1 > nul
@@ -1532,7 +1429,6 @@ raw cat --length=0 %target%%%td%%%file2% > nul ;; set /a makesize=%@retval% > nu
 set waittime= && set makesize=
 ## "raw" needed to overcome gzip/lzma errors
 if %argsize%==0 && if exist z &; if not exist ls && goto :eof ! if exist sfnarg && goto :eof ! goto :nolfnver
-#BAD???#if %argsize%==0 && if exist z &; if not exist ls && goto :eof ! goto :nolfnver
 set veloop=1
 :ddloop
 raw dd if=%file1% of=%target%%%td%%%file2% |; set /a verloop=%verloop%+1 > nul &; if not %verloop%>=5 && goto :ddloop ! echo Can not ddcopy LFN file to SFN && set /a lcatskip=%lcatskip%+1 > nul && set /a catskip=%catskip%+1 > nul && goto :eof
@@ -1551,7 +1447,6 @@ if exist LFN && set "gotomsg=goto :makelfnfile" && goto :eof
 if exist LFNFILE2 && echo -e "%LFNFILE2%" | set echoarg= &; set "echoarg=%echoarg:~1,-1%"
 if %SFN%==/SFN:@ && if exist lfncatch && setlocal && call :lfnadd &; endlocal && set makefil=%makefil%
 if exist tdev && set sfndir=%file2% && goto :eof
-#NONEED???#if "%arg%"=="%fulldir%" && set sfndir=%file2% && set gotomsg= && goto :eof
 set "gotomsg=goto :lloopend" && goto :eof
 ::
 :cleanlfn
@@ -1650,8 +1545,6 @@ if %largadd%>=1 && if exist %target%%%td%%%file2% && if "%argadd%"=="%file3%" &&
 if %largadd%>=1 && set file3=
 ## Risks involved?
 if %largadd%>=1 && if not %t%==/t && if exist %target%%%td%%%file2% &; fat del %target%%%td%%%file2% > nul || set /a lcatskip=%lcatskip%+1 > nul && set /a catskip=%catskip%+1 > nul && set argadd= && set largadd= && goto :eof
-#DEBUG#echo argadd=%argadd% "if %largadd%>=1 && echo %act%save$[0x00]"$[]%argadd%$[0x00]"$[]=> %file2% %NULL% && if %t%==/t && set /a makefil=%makefil%+1 > nul
-#MAYBE#if %largadd%>=1 && echo %act%save LFN:$[0x00]"$[]%argadd%$[0x00]"$[]=> %file2% %NULL% && if %t%==/t && set /a makefil=%makefil%+1 > nul
 if %largadd%>=1 && echo -e %act%save$[0x00]"$[]%argadd%$[0x00]"$[]=> %file2% %NULL% && if %t%==/t && set /a makefil=%makefil%+1 > nul
 if %t%==/t && goto :eof
 if %largadd%>=1 && fat mkfile size=%largadd% %target%%%td%%%file2%
@@ -1700,18 +1593,6 @@ shift
 set /a ocount=%ocount%+1 > nul
 goto :nochars2
 ::
-#OLD#:FAT32max
-#-# Calculate max size of FAT32-drive in bytes
-#setlocal && set * && set tdev=%tdev%
-#cat --hex --skip=0x20 --length=4 %tdev%+1 | set maxsect=
-#set /a maxsect=0x%maxsect:~19,2%%%maxsect:~16,2%%%maxsect:~13,2%%%maxsect:~10,2% > nul
-#cat --hex --skip=0x0B --length=2 %tdev%+1 | set bytepsec=
-#set /a bytepsec=0x%bytepsec:~13,2%%%bytepsec:~10,2% > nul
-#set /a maxbyte=%bytepsec% * %maxsect% > nul
-#endlocal && set maxbyte=%maxbyte%
-#goto :eof
-#####
-::
 :adretval
 ## New subroutine for negative @retval file-size values
 setlocal && set * && set argsize=%argsize% && set "arg=%arg%"
@@ -1731,12 +1612,8 @@ goto :eof
 :faterror
 setlocal && set * && set mdmem=%mdmem% && set r=%r% && set needKB=%needKB% && set "NULL=%NULL%" && set "output2=%output2%"
 set "message1=%~1"
-#NONEEDANYMORE#set "message2=%~2"
-#NONEEDANYMORE#set "targdev=%~d3" && set "targfile=%~f3"
-#BADforFAT copy /o#if /i "%message1:~0,7%"=="copy /o" && if exist %targfile% && raw cat --length=0 %targfile% > nul &; set /a needKB=-%@retval%>>10+%needKB% &; if %needKB%<=0 && set needKB=1
 if /i "%message1:~0,5%"=="copy " && call :freeKB "%~d3" &; if %freeKB%<=1 && echo No free space left on target %~d3 && endlocal && set freebyte=0 && set "gotomsg=goto :eof" && goto :eof ! if not %freeKB%>=%needKB% && echo Not enough space on target %~d3: needed %needKB%KB, available %freeKB%KB && endlocal && set /a freebyte=%freeKB% * 1k && set "gotomsg=%~2" && goto :eof
 if /i "%message1:~0,7%"=="copy /o" && call :checkreadonly "%~3" &; if %delagain%==Q && endlocal && set lastkey=Q && set "gotomsg=%~2" && goto :eof
-#????# &; debug msg=1
 errorcheck off
 if %delagain%==Y && if not exist q && if not exist r && echo >overwrite %~nx3 && set /a freeKB=%freeKB%+%needKB%-1
 if %delagain%==Y &; fat %message1% > nul && endlocal && set r=%r% && set /a freebyte=%freeKB% * 1k && set gotomsg= && goto :eof
@@ -1745,64 +1622,10 @@ if %delagain%==N && set delagain= && endlocal && set r=%r% && set /a freebyte=%f
 if not "%~3"=="" &; cat --length=0 %~3 > nul |; fat del %~3 || echo Rollback error: can not delete %~3 && endlocal && set r=%r% && set /a freebyte=%freeKB% * 1k && set "gotomsg=%~2" && goto :eof
 endlocal && echo -e Unspecified FAT-error >omit$[0x00]"$[]%~nx3$[0x00]" && set r=%r% && set /a freebyte=%freeKB% * 1k && set "gotomsg=%~2"
 goto :eof
-#OLD# New subroutine for FAT32 partitions above 4GB
-#setlocal && set * && set tdevice=%tdevice% && set argsize=%argsize% && set arg=%arg%
-#set "message1=%~1"
-#set "message2=%~2"
-#if not exist tdevice && endlocal && set freeKB=%freeKB% && set "gotomsg=%message2%" && echo Unspecified FAT-error %act%omit$[0x00]"$[]%arg%$[0x00]" && goto :eof
-#OLD#
-#delmod -l fatmini > nul || insmod (bd)/fatmini > nul || insmod (bd)/boot/grub/fatmini > nul || insmod (bd)/grub/fatmini > nul || insmod (bd)/g4dll/fatmini > nul || insmod /fatmini > nul || insmod /boot/grub/fatmini > nul || insmod /grub/fatmini > nul || insmod /g4dll/fatmini > nul || echo -e \x20FATMINI not found => fatcopy.g4b /? && echo >skip %file2% && set "gotomsg=%message2%" &; endlocal && set "gotomsg=%gotomsg%" && set /a lcatskip=%lcatskip%+1 > nul && set /a catskip=%catskip%+1 > nul && goto :eof
-#set * && set tdevice=%tdevice% && set argsize=%argsize% && set arg=%arg% && set "message1=%message1%" && set "message2=%message2%"
-#cat --hex --skip=0x1E8 --length=4 %tdevice%%1+1 | set freeclus=
-#set /a freeclus=0x%freeclus:~19,2%%%freeclus:~16,2%%%freeclus:~13,2%%%freeclus:~10,2% > nul
-#if %freeclus%==0xFFFFFFFF && endlocal && set gotomsg=%message2% && echo Unspecified FAT-error %act%omit %arg% && goto :eof
-#cat --hex --skip=0x0D --length=1 %tdevice%+1 | set secpclus=
-#set /a secpclus=0x%secpclus:~10,2% > nul
-#if %secpclus%==0x0 && endlocal && set gotomsg=%message2% && echo Unspecified FAT-error %act%omit %arg% && goto :eof
-#cat --hex --skip=0x0B --length=2 %tdevice%+1 | set bytepsec=
-#set /a bytepsec=0x%bytepsec:~13,2%%%bytepsec:~10,2% > nul
-#if %bytepsec%==0x0 && endlocal && set gotomsg=%message2% && echo Unspecified FAT-error %act%omit %arg% && goto :eof
-#set /a bytpclus=%bytepsec% * %secpclus% > nul
-#set /a freebyte=%bytpclus% * %freeclus%-1 > nul
-#set /a needbyte=%argsize%+%bytpclus% > nul
-#-# Negative argsize with almost 4 GB-file, above 0x7FFFFFF same limitations CALC & @retval ??
-#-# Free space not covered by FATMINI!
-#if %needbyte%>=%freebyte% && echo %act%omit %arg% needed %needbyte% bytes, free space availaible %freebyte% bytes && endlocal && set gotomsg=%message2% && goto :eof
-#echo >fatmini %message1%
-#fatmini %message1% || set /a lcatskip=%lcatskip%+1 > nul && set /a catskip=%catskip%+1 > nul && call :errors
-#if not exist faterror && set gotomsg= &; endlocal && set "gotomsg=%gotomsg%" && goto :eof
-#BAD#endlocal && set lcatskip=%lcatskip% && set catskip=%catskip% && set "gotomsg=%gotomsg%"
-###goto :eof
-#####
-::
-:errors
-echo List of FAT-errors:
-echo (1) A hard error occured in the low level disk I/O layer
-echo (2) Assertion failed
-echo (3) The physical drive cannot work
-echo (4) Could not find the file
-echo (5) Could not find the path
-echo (6) The path name format is invalid
-echo (7) Access denied due to prohibited access or directory full
-echo (8) Access denied due to prohibited access
-echo (9) The file/directory object is invalid
-echo (10) The physical drive is write protected
-echo (11) The logical drive number is invalid
-echo (12) The volume has no work area
-echo (13) There is no valid FAT volume on the physical drive
-echo (14) The f_mkfs() aborted due to any parameter error
-echo (15) Could not get a grant to access the volume within defined period
-echo (16) The operation is rejected according to the file shareing policy
-echo (17) LFN working buffer could not be allocated
-echo (18) Number of open files > _FS_SHARE
-set "faterror=active"
-goto :eof
 ::
 :checkreadonly
 setlocal && set * && set mdmem=%mdmem% && set r=%r% && set "NULL=%NULL%" && set "output=%output2%"
-#NOTthereWith/ls#set output && pause
 call :attrib isreadonly "%~1" &; if not exist result && endlocal && set delagain=N && goto :eof
-#BAD#set attribms=%source%%%cd%%%arg% && call :attrib isreadonly "%source%%%cd%%%arg%" &; if not exist result && set delagain=N && goto :eof
 if %r%==/-r && set delagain=N
 if not exist r && echo -e \x20%~1 is read-only
 if not %delagain%==N && if not exist r && set /p:90 /u "delagain= Overwrite (attributes deleted) (Y=yes N=no A=always S=skip Q=quit)?" &; echo && set delagain=%delagain:~0,1%
@@ -1827,45 +1650,31 @@ set sname=%~n1
 set sext=%~x1
 setlocal && set "output=%output1%" && call :attrib "getsfnentry" "%~1" &; endlocal && set sdentry=%entry% && set "output1=%output%"
 if exist sdentry && if exist output1 && setlocal &; %output1% &; endlocal && set sdevsect=%devsect% && set sfatsys=%filesys%
-#TooMuch?if exist soutput && setlocal &; %soutput% &; endlocal && set sdatarea=%dataarea% && set sclusize=%clussize% && set sroot=%root% && set sdevsect=%devsect% && set sfatsys=%fatsys%
 if /i %sfatsys:~0,3%==FAT if %sdentry%>=0x200 if %sdevsect%>=3 || echo Can not find SFN-entry of source-file && endlocal && goto :eof
-#DEBUG#if exist sdentry && cat --hex --skip=%sdentry% --length=32 %sdev%%0+%sdevsect% && echo
 if %t%==/t && endlocal && set success=Y && set "output1=%output1%" && goto :eof
-#BAD#if %t%==/t && endlocal && set success=Y && goto :eof
 set tdev=%~d2
 set tdir=%~p2
 set tname=%~n2
 set text=%~x2
 setlocal && set output= &; set "output=%output2%" && call :attrib "getsfnentry" "%~2" &; endlocal && set tdentry=%entry% && set "output2=%output%"
 if exist tdentry && if exist output2 && setlocal &; %output2% &; endlocal && set tdevsect=%devsect% && set tfatsys=%filesys%
-#TooMuch?#if exist toutput && setlocal &; %toutput% &; endlocal && set tdatarea=%dataarea% && set troot=%root% && set tdevsect=%devsect% && set tfatsys=%fatsys%
 if /i %tfatsys:~0,3%==FAT if %tdentry%>=0x200 if %tdevsect%>=3 || echo Can not find SFN-entry of target-file && endlocal && goto :eof
-#DEBUG#if exist tdentry && cat --hex --skip=%tdentry% --length=32 %tdev%%0+%tdevsect%
 if exist tdentry && set /A tdattrib=%tdentry%+11 > nul && set /A tdwrttd=%tdentry%+22 > nul
-#NOTANYMORE#if exist tdentry && set /A tdattrib=%tdentry%+11 > nul && set /A tlastacc=%tdentry%+18 > nul && set /A tdwrttd=%tdentry%+22 > nul
 echo -n > (md)%mdmem%+1
 if not exist copyattr &; if not %lfncatch%==Y && if exist sdentry && if exist tdentry && echo -n > (md)%mdmem%+1 &; raw dd if=%sdev%%0+%sdevsect% of=(md)%mdmem%+1 bs=1 count=32 skip=%sdentry% > nul || echo BAD ddcopy I ! set success=Y
 if not exist copyattr &; if %lfncatch%==Y && if exist sdentry && if exist tdentry && echo -n > (md)%mdmem%+1 &; raw dd if=%sdev%%0+%sdevsect% of=(md)%mdmem%+1 bs=1 count=32 skip=%sdentry% > nul || echo BAD ddcopy LFN I ! set success=Y
 if exist copyattr &; if not %lfncatch%==Y && if exist sdentry && if exist tdentry && if exist tdattrib && echo -n > (md)%mdmem%+1 &; raw dd if=%sdev%%0+%sdevsect% of=(md)%mdmem%+1 bs=1 count=32 skip=%sdentry% > nul || echo BAD ddcopy I ! raw dd if=(md)%mdmem%+1 of=%tdev%%0+%tdevsect% bs=1 count=2 skip=11 seek=%tdattrib% || echo BAD ddcopy II ! set success=Y
 if exist copyattr &; if %lfncatch%==Y && if exist sdentry && if exist tdentry && if exist tdattrib && echo -n > (md)%mdmem%+1 &; raw dd if=%sdev%%0+%sdevsect% of=(md)%mdmem%+1 bs=1 count=32 skip=%sdentry% > nul || echo BAD ddcopy LFN I ! raw dd if=(md)%mdmem%+1 of=%tdev%%0+%tdevsect% bs=1 count=1 skip=11 seek=%tdattrib% || echo BAD ddcopy LFN II ! set success=Y
-#WithoutNTcasebyte#if exist sdentry && if exist tdentry && if exist tdattrib && echo -n > (md)%mdmem%+1 &; raw dd if=%sdev%%0+%sdevsect% of=(md)%mdmem%+1 bs=1 count=32 skip=%sdentry% > nul || echo BAD ddcopy I ! raw dd if=(md)%mdmem%+1 of=%tdev%%0+%tdevsect% bs=1 count=1 skip=11 seek=%tdattrib% || echo BAD ddcopy II ! set success=Y
-#NotGood#echo "if exist sdentry && if exist tdentry &; raw dd if=%sdev%%0+%sdevsect% of=%tdev%%0+%tdevsect% bs=1 count=1 skip=%sdattrib% seek=%tdattrib% > nul || echo BAD ddcopy
-#NotGood#if exist sdentry && if exist tdentry &; raw dd if=%sdev%%0+%sdevsect% of=%tdev%%0+%tdevsect% bs=1 count=1 skip=%sdattrib% seek=%tdattrib% > nul || echo BAD ddcopy
 if not exist copyattr && if not %success%==Y && echo -n > (md)%mdmem%+1 && echo Can not copy Modification Date/Time from source-file to target-file && endlocal && goto :eof
 if exist copyattr && if not %success%==Y && echo -n > (md)%mdmem%+1 && echo Can not copy Attributes and Modification Date/Time from source-file to target-file && endlocal && goto :eof
-#NOTANYMORE#if not %copyattr%==a && if exist sdentry && if exist tdentry && if %success%==Y && set success= && if exist tlastacc &; raw dd if=(md)%mdmem%+1 of=%tdev%%0+%tdevsect% bs=1 count=2 skip=18 seek=%tlastacc% || echo BAD ddcopy III && set success= ! set success=Y
-#NOTANYMORE#if not %copyattr%==a && if not %success%==Y && echo -n > (md)%mdmem%+1 && echo Can not copy Last Access Date from source-file to target-file && endlocal && goto :eof
 ## FAT-source modification date/-time copied, but not from directories (sub-routine is not called after making td, with '/a' than copyattr=a)
 if not %copyattr%==a && if exist sdentry && if exist tdentry && if %success%==Y && set success= && if exist tdwrttd &; raw dd if=(md)%mdmem%+1 of=%tdev%%0+%tdevsect% bs=1 count=4 skip=22 seek=%tdwrttd% || echo BAD ddcopy IV && set success= ! set success=Y
 if not %copyattr%==a && if not %success%==Y && echo -n > (md)%mdmem%+1 && echo Can not copy Modification Time and Date from source-file to target-file && endlocal && goto :eof
-#DEBUG#if exist tdentry && echo && cat --hex --skip=%tdentry% --length=32 %tdev%%0+%tdevsect% && echo
 echo -n > (md)%mdmem%+1
 endlocal && set success=%succes% && set "output1=%output1%" && set "output2=%output2%"
-#DEBUG#echo C "output1=%output1%"
 goto :eof
 ::
 :attrib
-#BAD#setlocal && set * && set "output=%output2%" && set mdmem=%mdmem%
 setlocal && set * && set mdmem=%mdmem% && set "output=%output%"
 if exist output &; %output%
 ## Modes: isreadonly and setattrib
@@ -1888,7 +1697,6 @@ if %mode%==getsfnentry && endlocal && set entry=%entry% && set "output=%output%"
 call :attributes "%~2"
 if %mode%==isreadonly &; if %r%==r && set result=1 ! set result=
 if not exist output && set "output=set dataarea=%dataarea% && set clussize=%clussize% && set root=%root% && set fat1=%fat1% && set fat2=%fat2% && set secpfat=%secpfat% && set devsect=%devsect% && set secpclus=%secpclus% && set numclus=%numclus% && set fatsize=%fatsize% && set filesys=%filesys%"
-#BAD#endlocal && set result=%result% && set "output2=%output%" && debug msg=1
 endlocal && set result=%result% && set "output=%output%"
 goto :eof
 ::
@@ -1907,7 +1715,6 @@ call Fn.11 "%~1" "-s" && set bit2=0 && set changed=Y
 call Fn.11 "%~1" "+a" && set bit5=1 && set changed=Y
 call Fn.11 "%~1" "-a" && set bit5=0 && set changed=Y
 if %changed%==Y &; set /a bit0=1*%bit0% && set /a bit1=2*%bit1% && set /a bit2=4*%bit2% && set /a bit3=8*%bit3% && set /a bit4=16*%bit4% && set /a bit5=32*%bit5% && set /a bit6=64*%bit6%
-#BAD#if %changed%==Y && set /a bit0=1*%bit0% #;; set /a bit1=2*%bit1% #;; set /a bit2=4*%bit2% #;; set /a bit3=8*%bit3% #;; set /a bit4=16*%bit4% #;; set /a bit5=32*%bit5% #;; set /a bit6=64*%bit6%
 if %changed%==Y && set /A addattr2=%bit0%+%bit1%+%bit2%+%bit3%+%bit4%+%bit5%+%bit6%
 if %changed%==Y && set /A attentry=%entry%+0xB &; raw write --offset=%attentry% %device%%0+%devsect% \x%addattr2:~2% > nul && set result=1
 endlocal && set result=%result% && set addattr2=%addattr2%
@@ -1977,12 +1784,11 @@ echo "%path%" > (md)%mdbase%+1
 cat --locate=/ --replace=\x20 (md)%mdbase%+1 > nul
 cat --locate=\x22 --replace=\x20 (md)%mdbase%+1 > nul
 set clusnum=2 && set sfnpath=/ && cat (md)%mdbase%+1 | call :finddirectory
-#BAD#set clusnum=0 && set sfnpath=/ && cat (md)%mdbase%+1 | call :finddirectory
 endlocal && set clusnum=%clusnum% && set bytedone=%bytedone% && set dirlen=%dirlen% && set entry=%entry% && set sfnfile=%sfnfile% && set sfnpath=%sfnpath% && set lfnentry=%lfnentry%
 goto :eof
 ::
 :finddirectory
-#-# find disk-address and cluster number of last directory in PATH
+## find disk-address and cluster number of last directory in PATH
 if "%~1"=="" && goto :eof
 set "argname=%~n1" && set "argext=%~x1"
 set sfnpath=%sfnpath%%%argname%%%argext%/ && set ENTRY= && call :catfile "%~1"
@@ -1994,7 +1800,6 @@ if exist entry && if not %success%==Y && echo -n > (md)%mdbase%+1 && raw dd if=%
 if %success%==Y && if /i %filesys%==fat32 && read %address% &; set /A clusnumL=%@retval%&0xffff > nul &; set clusnumL=0000%clusnumL:~2% && set /A address=%address%-0x6 &; read %address% &; set /A clusnumH=%@retval%&0xffff > nul &; if %clusnumH%==0x0 && set /A clusnum=0x%clusnumL:~-4,4% ! set clusnum=%clusnumH%%%clusnumL:~-4,4%
 if %success%==Y && if not /i %filesys%==fat32 && read %address% &; set /A clusnum=%@retval%&0xffff > nul
 if not exist entry && if exist clusnum && if %bytedone%>=%dataarea% && call :lookupFAT "%clusnum%" &; if %clusnum%>=2 && set /A bytedone=%clusnum% - 0x2 * %clussize% + %dataarea% && set /A dirlen=%clussize% && goto :finddirectoryloop
-#DEBUG#if not exist entry && if exist clusnum && if %bytedone%>=%dataarea% && call :lookupFAT "%clusnum%" &; echo clusnum=%clusnum% &; if %clusnum%>=2 && set /A bytedone=%clusnum% - 0x2 * %clussize% + %dataarea% && set /A dirlen=%clussize% && goto :finddirectoryloop
 if exist entry && if %success%==Y && set /A bytedone=%clusnum% - 0x2 * %clussize% + %dataarea% && set /A dirlen=%clussize%
 if not %clusnum%==0 && shift ! goto :eof
 goto :finddirectory
@@ -2063,7 +1868,6 @@ raw cat --length=0 %target%%%td%%%file2% > nul ;; set /a makesize=%@retval% > nu
 goto :eof
 ::
 :exit
-#BAD#if exist s &; if %fcs%==0 if %fco%==0 if %catskip%==0 if %sdlfnd%==0 if %sdlfnf%==0 if %sdlfnsk%==0 || echo %NULL%
 if %msds%==0 && if %sdsk%==0 && if %sdsm%==0 && if %fcs%==0 && if %fco%==0 && if %catskip%==0 && if %zerobyt%==0 &; if not exist SFN && if not exist LFN && if %lfnskip%==0 && if %sdlfnsk%==0 && echo %NULL% && goto :eov ! if %SFN%==/SFN:@ && if %makefil%==0 && echo %NULL% && goto :eov ! if exist LFN && if %lfnskip%==0 && if %sdlfnd%==0 && if %sdlfnf%==0 && if %sdlfnsk%==0 && echo %NULL% && goto :eov ! if exist SFN && if not exist LFN && echo %NULL% && goto :eov
 if not exist s &; if %msds%==0 if %sdsk%==0 if %sdsm%==0 if %fcs%==0 if %fco%==0 if %catskip%==0 if %lfnskip%==0 if %zerobyt%==0 if %makefil%==0 if %sdlfnd%==0 if %sdlfnf%==0 if %sdlfnsk%==0 || echo %NULL%
 if exist s &; if %msds%==0 && if %lfcs%==0 && if %lfco%==0 && if %lcatskip%==0 && echo %NULL%
@@ -2129,21 +1933,17 @@ goto :eof
 beep 0 1
 read 0x41a > nul &; set /A head=%@retval%&0xff > nul &; if %head%>=0x20 && set /A lastmem=%head%+0x400-2 > nul ! set /A lastmem=0x43C > nul &; read %lastmem% > nul &; set /A lastkey=%@retval%&0xff > nul
 if "%~1"=="" &; if %lastkey%==0x1B && set lastkey=0x71 && goto :eof ! goto :eof
-#NONEED#if not exist ls && if "%~1"=="Esc" && if not %lastkey%==0x1B && goto :eof
-#NONEED#if exist ls && if "%~1"=="Esc" && if not %lastkey%==0x1B && if not %lastkey%==0x51 && if not %lastkey%==0x71 && goto :eof
 if "%~1"=="Esc" && if not %lastkey%==0x1B && goto :eof
 setlocal && call :Fn.4 &; endlocal && set hORG=%h% && set hINT=%h% && set vORG=%v% && set vINT=%v%
 if not %hORG%==0 && setlocal && echo && call :Fn.4 &; endlocal && set hINT=%h% && set vINT=%v% &; if %vINT%==%vORG% && set /a vORG=%vORG%-1
 echo -n $[0x0F][Hit Q or Esc to quit, other key to continue] && pause --test-key &; set /A lastkey=%@retval%&0xff && call :Fn.5 %hINT% %vINT% && echo -n -e \x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20 && call :Fn.5 %hORG% %vORG%
 if %lastkey%==0x1B && set lastkey=0x71
 if not %lastkey%==0x51 if not %lastkey%==0x71 || goto :eof ! set lastkey=
-#NOTSOGOOD#call :Fn.5 %hORG% %vORG% && set lastkey= && goto :eof
 goto :eof
 ::
 :Fn.4
-#-#+ call Fn.4 - h is max 0-255 chars per line, position (h,v) (0,0) is 0 and (0,1) is 256 (in grub4efi text mode 20221128+30: 16 & h max +64, on some line h is always the same ?!)
+## call Fn.4 - h is max 0-255 chars per line, position (h,v) (0,0) is 0 and (0,1) is 256 (in grub4efi text mode 20221128+30: 16 & h max +64, on some line h is always the same ?!)
 call Fn.4 ;; set /A h=%@retval% ;; set /a v=%h%>>8 ;; set /a h=%h%&0xff
-#NOT?#if not exist h && set h=0
 goto :eof
 ::
 :Fn.5
@@ -2151,7 +1951,6 @@ call Fn.5 %~1 %~2
 goto :eof
 ::
 :sfn@2lfn
-#BAD#fat dir %~1 > nul && goto :eof
 set device=%~d1
 set "path=%~p1"
 set "name=%~n1" &; set /a namelen=%@retval% > nul
@@ -2172,7 +1971,6 @@ if exist lfnarg && set lfnarg=%lfnarg% &; set /a lfnlen=%@retval% > nul
 if not %lfnlen%<=256 && set lfnarg= && goto :eof
 if not %lfnlen%==%filelen% && set lfnarg= && goto :eof
 ## NOT always first two chars of SFN and LFN equal!
-#BAD#if not /i "%name:~0,2%"=="%lfnarg:~0,2%" && set lfnarg=
 goto :eof
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # END OF SUB-ROUTINES
@@ -2235,14 +2033,14 @@ echo /maxbyte:n = set max number of bytes to copy- takes k, m, g postfix operato
 echo /z = copy zero byte files (default: ommitted), fake overwriting only 4*
 echo $[]     copied for files, not for directories - from FAT-source only
 echo /n = do not copy Modification Date/-Time from FAT-source (15%-45% faster)
-echo *  Default verbose copying: mkdir & copy & output messages (less with '*.*')
+echo *   Default verbose copying: mkdir & copy & output messages (less with '*.*')
 echo ** Instead of '~' ONE other character can be used too (for name-part only)
 echo 3* Examples: /ext:g4b.lll.bat or /-ext:.7z.cab.img.rar.vhd.zip- first dot free
 echo 4* date and time never updated with overwriting, to not loose (LFN-)metadata && echo
 echo FAT directory-parser switches: /a:[-]d[-]a[-]r[-]s[-]h /a /lfn:@ *
 echo /a:[-]d[-]a[-]r[-]s[-]h = [not] copy files/directories with attribute(s) **
 echo /a = copy attributes, NT-casebyte and Mod Date/-Time (overides switch '/n'!)
-echo * Default directory parser if copying from FAT-source
+echo *  Default directory parser if copying from FAT-source
 echo *  About max 36 000 files AND max 3 000 subdirectories in one directory
 echo ** Attributes not copied by FAT, copied files: archive-attribute, or use /a too && echo
 echo LS parser switches: /sfn[:@]|[/lfn[:case]] /a /f /$ /l+f /filenum:[-]n /nocase
@@ -2294,13 +2092,33 @@ echo Example  9: FATCOPY.G4B "(hd0,0)/Program Files/" (hd1,0)/BACKUP/ /lfn /s /d
 echo Example 10: FATCOPY.G4B (hd0,0)/PROGRA~1/ (hd1,0)/ /lfn:case /s /d /z /i /a
 echo Example 11: FATCOPY.G4B (fd0)/IO.SYS (hd0,0) /r /a
 echo Example 12: FATCOPY.G4B (hd1,0)/SOMEDI~1/ (fd1)/SOMEDI~1/ /s /lfn:@
+echo Example 13: FATCOPY.G4B (hd0,0)/SOMEFILE.EXT (fd0)/NewFile.Ext /lfn:case
+## echo List of FAT-errors:
+## echo (1) A hard error occured in the low level disk I/O layer
+## echo (2) Assertion failed
+## echo (3) The physical drive cannot work
+## echo (4) Could not find the file
+## echo (5) Could not find the path
+## echo (6) The path name format is invalid
+## echo (7) Access denied due to prohibited access or directory full
+## echo (8) Access denied due to prohibited access
+## echo (9) The file/directory object is invalid
+## echo (10) The physical drive is write protected
+## echo (11) The logical drive number is invalid
+## echo (12) The volume has no work area
+## echo (13) There is no valid FAT volume on the physical drive
+## echo (14) The f_mkfs() aborted due to any parameter error
+## echo (15) Could not get a grant to access the volume within defined period
+## echo (16) The operation is rejected according to the file shareing policy
+## echo (17) LFN working buffer could not be allocated
+## echo (18) Number of open files > _FS_SHARE
 ::
 :eov
 echo -n > (md)%mdmem%+1
 %status:~46,7%
 %status:~57%
-delmod -l fat > nul && delmod fat > nul
-if exist LFN && delmod -l attribft.lll > nul && delmod attribft.lll > nul
-#TODO#if not %result%==0 && set result=1
+call Fn.11 "%INSMOD%" "fat" |; delmod -l fat > nul && delmod fat > nul || delmod FAT > nul
+if exist LFN && call Fn.11 "%INSMOD%" "ATTRIBFT.LLL" |; delmod -l attribft.lll > nul && delmod attribft.lll > nul || delmod ATTRIBFT.LLL > nul
+if not %result%==0 && set result=1
 debug msg=3
 endlocal && set result=%result%
