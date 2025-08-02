@@ -1,5 +1,5 @@
 !BAT
-#-#+ FATCOPY.G4B v0.5 (20250725), by deomsh. Based on copyFF.bat (:cpa & :copyfiles & :sub-dir => originator of call's seems to be Chenall)
+#-#+ FATCOPY.G4B v0.5 (20250802), by deomsh. Based on copyFF.bat (:cpa & :copyfiles & :sub-dir => originator of call's seems to be Chenall)
 if not exist @uefi &; setlocal && set /a version=*0x8278&0xFFFFFFFF > nul &; if %version%>=20170505 && endlocal ! echo Grub4dos version %version% too old, use version 20170505 or later && endlocal && goto :eof
 if "%~1"=="" && call :help "smallhelp" &; goto :eof
 setlocal && set *
@@ -1992,7 +1992,7 @@ if "%~1"=="smallhelp" && echo Example: FATCOPY.G4B (fd0)/ (hd1,0)/BACKUP/ /s /sf
 if "%~1"=="smallhelp" && echo Example: FATCOPY.G4B (hd0,0)/PROGRA~1/ (hd1,0)/BACKUP/ /lfn:case /s /d /z
 if "%~1"=="smallhelp" && echo Example: FATCOPY.G4B (fd0)/IO.SYS (hd0,0) /r /a && goto :eof
 clear ;; pager on
-echo FATCOPY.G4B v0.5 (20250725), by deomsh. Based on copyFF.bat (:cpa & :copyfiles & :sub-dir => originator of call's seems to be Chenall)
+echo FATCOPY.G4B v0.5 (20250802), by deomsh. Based on copyFF.bat (:cpa & :copyfiles & :sub-dir => originator of call's seems to be Chenall)
 echo Function: front-end for Grubutil 'FAT', function 'copy'
 echo FATCOPY.G4B [--mdbase=sector] DEVICE1/PATH1/FILE1 DEVICE2/PATH2/FILE2 switches
 echo FATCOPY.G4B /? (this screen)
