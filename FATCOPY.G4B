@@ -58,7 +58,7 @@ call :optargs %* &; if %result%==0 && echo && call :help "smallhelp" && echo && 
 if exist mdmem && if not exist ls && if %mdmem%>=0x3001 && if %mdmem%<=0x4000 && echo && echo Base memory out of range => FATCOPY.G4B /? && echo && goto :eov
 delmod -l fat > nul && set INSMOD=fat ! set INSMOD=INSMOD &; if exist LFN && delmod -l ATTRIBFT.LLL > nul &; if %INSMOD%==fat && set INSMOD=%INSMOD%;ATTRIBFT.LLL ! set INSMOD=ATTRIBFT.LLL
 delmod -l fat > nul |; insmod %batchsrc%fat > nul || insmod (bd)/fat > nul || insmod (bd)/boot/grub/fat > nul || insmod (bd)/grub/fat > nul || insmod (bd)/g4dll/fat > nul || insmod /fat > nul || insmod /boot/grub/fat > nul || insmod /grub/fat > nul || insmod /g4dll/fat > nul || echo && echo FAT not found => fatcopy.g4b /? && echo && goto :eov
-if exist LFN && delmod -l ATTRIBFT.LLL > nul |; if not exist %batchsrc%ATTRIBFT.LLL && echo && echo ATTRIBFT.LLL not found, mandatory with switch '/LFN' && set result=0 && goto :eov ! insmod %batchsrc%ATTRIBFT.LLL > nul || echo && echo insmod can not load %batchsrc%ATTRIBFT.LLL && set result=0 && goto :eov
+if exist LFN &; delmod -l ATTRIBFT.LLL > nul |; if not exist %batchsrc%ATTRIBFT.LLL && echo && echo ATTRIBFT.LLL not found, mandatory with switch '/LFN' && set result=0 && goto :eov ! insmod %batchsrc%ATTRIBFT.LLL > nul || echo && echo insmod can not load %batchsrc%ATTRIBFT.LLL && set result=0 && goto :eov
 if %copyattr%==Y && if exist ls && if not exist LFN && echo && echo ls-directory parsing with FAT source and target: switch /a only with /lfn && set result=0 && echo && goto :eov
 echo -n > (md)%mdmem%+1
 if exist noext && set "arg=%noext%"
