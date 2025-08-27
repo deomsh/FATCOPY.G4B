@@ -1,4 +1,4 @@
-## FATCOPY.G4B v0.5 (20250802)
+## FATCOPY.G4B v0.5.1 (20250826)
 
 <pre><code>Function: front-end for Grubutil 'FAT', function 'copy'
 FATCOPY.G4B [--mdbase=sector] DEVICE1/PATH1/FILE1 DEVICE2/PATH2/FILE2 switches
@@ -113,6 +113,9 @@ Concept of 'Loosely Linked Library' is an idea of Wonko the Sane (Jaclaz)
 More information and download: https://github.com/deomsh/ATTRIBFT.LLL  
 
 ### HISTORY
+Version 0.5.1  
+BUGFIX: copy/ overwrite attributes not working on partitions > ~256GB  
+
 Version 0.5  
 NEW: FAT (and ATTRIBFT.LLL if used) not unloaded afterwards if already loaded with insmod  
 NEW: copying case from all ls-supported file-systems with switch '/LFN:case' (on truly case-sensitive file-systems first instance copied only)  
