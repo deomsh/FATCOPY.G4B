@@ -114,6 +114,7 @@ More information and download: https://github.com/deomsh/ATTRIBFT.LLL
 
 ### HISTORY
 Version 0.5.1  
+BUGFIX: bad copying with switch /LFN (Bug was introduced in Verion 0.5)  
 BUGFIX: not compatible with partitions >= ~256GB  
 
 Version 0.5  
