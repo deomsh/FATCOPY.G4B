@@ -1,5 +1,5 @@
 !BAT
-#-#+ FATCOPY.G4B v0.5 (20250802), by deomsh. Based on copyFF.bat (:cpa & :copyfiles & :sub-dir => originator of call's seems to be Chenall)
+#-#+ FATCOPY.G4B v0.5.1 (20250827), by deomsh. Based on copyFF.bat (:cpa & :copyfiles & :sub-dir => originator of call's seems to be Chenall)
 if not exist @uefi &; setlocal && set /a version=*0x8278&0xFFFFFFFF > nul &; if %version%>=20170505 && endlocal ! echo Grub4dos version %version% too old, use version 20170505 or later && endlocal && goto :eof
 if "%~1"=="" && call :help "smallhelp" &; goto :eof
 setlocal && set *
@@ -366,7 +366,8 @@ call :lfncatch &; if %utfcatch%==1 && set "gotomsg=echo UTF-8 characters in Targ
 if not exist SFN && if %lfncatch%==1 && set "gotomsg=echo %tdev%%%td%%%arg% is a LFN-directory => FATCOPY.G4B /? && goto :eov" && goto :eof
 if exist LFN && ATTRIBFT.LLL getsfn input="%output2%" "%tdev%%%td%%%arg%" &; if exist result && set "lfnarg=%arg%" && set arg=%result% && set result= && set "output2=%output%" && set output= &; echo -e Target directory exists:$[0x00]"$[]%tdev%%%lfntd%%%lfnarg%$[0x00]" %NULL% && set newdir=0 && goto :skipt
 if exist LFN && if %LFN%==/LFN:@ && ATTRIBFT.LLL getlfn input="%output2%" "%tdev%%%td%%%arg%" &; if exist result && set "lfnarg=%result%" && set result= && set "output2=%output%" && set output= &; echo -e Target directory exists:$[0x00]"$[]%tdev%%%lfntd%%%lfnarg%$[0x00]" %NULL% && set newdir=0 && goto :skipt
-if exist LFN && if not %lfncatch%==1 && ATTRIBFT.LLL getlfn input="%output2%" "%tdev%%%td%%%arg%" &; if exist result && set "lfnarg=%result%" && set /u r=%arg% && set result= && set "output2=%output%" && set output= &; echo -e Target directory exists:$[0x00]"$[]%tdev%%%lfntd%%%lfnarg%$[0x00]" %NULL% && set newdir=0 && goto :skipt
+if exist LFN && if not %lfncatch%==1 && ATTRIBFT.LLL getlfn input="%output2%" "%tdev%%%td%%%arg%" &; if exist result && set "lfnarg=%result%" && set /u higharg=%arg% && set result= && set "output2=%output%" && set output= &; echo -e Target directory exists:$[0x00]"$[]%tdev%%%lfntd%%%lfnarg%$[0x00]" %NULL% && set newdir=0 && goto :skipt
+#BUG???#if exist LFN && if not %lfncatch%==1 && ATTRIBFT.LLL getlfn input="%output2%" "%tdev%%%td%%%arg%" &; if exist result && set "lfnarg=%result%" && set /u r=%arg% && set result= && set "output2=%output%" && set output= &; echo -e Target directory exists:$[0x00]"$[]%tdev%%%lfntd%%%lfnarg%$[0x00]" %NULL% && set newdir=0 && goto :skipt
 if %LFN%==/LFN:@ && if not %lfncatch%==1 && if "%~2"=="" &; if not /i "%sdev%%%sdir%"=="%tdev%%%tdir:~1%" && call Fn.11 "%arg%" "~" && setlocal && set sdir=%sdir:~1,-1% && set arg=%arg% &; set /a arglen=%@retval% > nul &; call if /i %^sdir:~-%arglen%,%arglen%%%==%arg% && call :sfn@2lfn "%sdev%/%sdir%" "#" ! set lfnarg= &; if exist lfnarg && endlocal && set "lfnarg=%lfnarg%" ! endlocal
 if %LFN%==/LFN:@ && if not %lfncatch%==1 && if /i "%sdev%%%sdir%"=="%tdev%%%tdir:~1%" && call Fn.11 "%arg%" "~" && setlocal && call :sfn@2lfn "%tdev%%%td%%%arg%" "#" &; if exist lfnarg && endlocal && set "lfnarg=%lfnarg%" ! endlocal &; if exist lfnarg && goto :makelfndir ! goto :skiptd
 if %LFN%==/LFN:@ && if not %lfncatch%==1 && if /i "%sdev%%%sdir%"=="%tdev%%%tdir:~1%" && goto :skiptd
@@ -700,10 +701,11 @@ call Fn.11 "%~1" "$[" &; call Fn.11 "%~1" "]" && pause --wait=0 %act%omit unsupp
 if "%~2"=="" && cat --skip=130829 (md)%mdmem%+%callsect% | set content= &; if exist content && set content= && goto :eof
 if exist maxfiles && if %fcs%>=%maxfiles% && goto :eof
 if exist maxbyte && if %copybyt%>=%maxbyte% && set "gotomsg3=goto :eof" && goto :eof
+if not exist file1 && set file2=
 set arg= && set larg= && set file= && set targfile= && set argnum= && set argname= && set largname= && set argext= && set largext=
 set fileext= && set gotomsg= && set filesize= && set zeromsg= && set zero2msg= && set fulldir= && set sfndir= && set emdirfil= && set content=
 set argsize= && set lfncatch= && set argcrc32= && set copycrc3= && set cmdline= && set lcmd= && set echofdir= && set echoarg= && set srccrc32= && set tgtcrc32= && set argtilde=
-set sfnarg= && set lfnarg= && set utfcatch= && set needKB= && set higharg= && set ntcase= && set dellfn2=
+set sfnarg= && set lfnarg= && set utfcatch= && set needKB= && set higharg= && set ntcase= && set dellfn2= && set lfnfile2= && set sfnfile2=
 set arg=%~1
 set "arg=%arg%"
 set "argname=%~n1" &; set /a largname=%@retval% > nul &; call Fn.11 "%argname%" "\x3F" && pause --wait=0 %argname% > (md)%mdmem%+1 && cat --locate=\x3F --replace=\x3D --length=%largname% (md)%mdmem%+1 > nul && cat --length=%largname% (md)%mdmem%+1 | set argname=
@@ -810,7 +812,6 @@ if not exist file2 && if %i%==/i && if exist sfnarg && raw crc32 %target%%%td%%%
 if not exist file2 && if %i%==/i && if not exist sfnarg && raw crc32 %target%%%td%%%arg% | set copycrc3= &; if exist copycrc3 && set /A copycrc3=0x%copycrc3% > nul
 ## Copy-dialog if file exists on target. Not disabled anymore if exist /s
 if not exist file2 && if not %argnum%>=1 &; if exist sfnarg && set file2=%sfnarg% ! set file2=%arg%
-## Still needed if not exist argext
 if not exist file2 && if %argnum%>=1 && if not exist argext && set argext=%argname%
 if not exist file2 && if %argnum%>=1 && setlocal && call :semicol &; if exist file && endlocal && set /u file2=%file% ! endlocal &; if exist file2 &; if not %i%==/i && set copyloop=0 && goto :lscploop ! if %i%==/i && if %argcrc32%>=0x1 && if %copycrc3%>=0x1 && if not %argcrc32%==%copycrc3% && set copyloop=0 && goto :lscploop
 if %i%==/i && if %argcrc32%>=0x1 && if %copycrc3%>=0x1 && if %argcrc32%==%copycrc3% && set /a lcatskip=%lcatskip%+1 > nul && set /a catskip=%catskip%+1 > nul && echo -e %act%skip %arg% %NULL% &; if exist LFN && goto :makelfnfile ! if %copyattr%==Y && goto: lloopend ! goto :skip1
@@ -1829,7 +1830,8 @@ read %address% > nul ;; set /A secpfat=%@retval%&0xffff > nul
 if %devsect%==0 && set /A address=%base%+0x20 > nul
 if %devsect%==0 && read %address% > nul &; set /A devsect=%@retval%&0xffffffff > nul
 if %secpfat%==0 && if /i %filesys%==fat32 && set /A address=%base%+0x24 > nul
-if %secpfat%==0 && if /i %filesys%==fat32 && read %address% > nul &; set /A secpfat=%@retval%&0xffff > nul
+if %secpfat%==0 && if /i %filesys%==fat32 && read %address% > nul &; set /A secpfat=%@retval%&0xffffffff > nul
+#BAD:16bits#if %secpfat%==0 && if /i %filesys%==fat32 && read %address% > nul &; set /A secpfat=%@retval%&0xffff > nul
 set /A rootbyte=%rootentr% * 32 > nul
 set /A fatbyte=%numfats% * %secpfat% * %bytepsec% > nul
 set /A rsrvbyte=%reserved% * %bytepsec% > nul
@@ -1992,7 +1994,7 @@ if "%~1"=="smallhelp" && echo Example: FATCOPY.G4B (fd0)/ (hd1,0)/BACKUP/ /s /sf
 if "%~1"=="smallhelp" && echo Example: FATCOPY.G4B (hd0,0)/PROGRA~1/ (hd1,0)/BACKUP/ /lfn:case /s /d /z
 if "%~1"=="smallhelp" && echo Example: FATCOPY.G4B (fd0)/IO.SYS (hd0,0) /r /a && goto :eof
 clear ;; pager on
-echo FATCOPY.G4B v0.5 (20250802), by deomsh. Based on copyFF.bat (:cpa & :copyfiles & :sub-dir => originator of call's seems to be Chenall)
+echo FATCOPY.G4B v0.5.1 (20250827), by deomsh. Based on copyFF.bat (:cpa & :copyfiles & :sub-dir => originator of call's seems to be Chenall)
 echo Function: front-end for Grubutil 'FAT', function 'copy'
 echo FATCOPY.G4B [--mdbase=sector] DEVICE1/PATH1/FILE1 DEVICE2/PATH2/FILE2 switches
 echo FATCOPY.G4B /? (this screen)
