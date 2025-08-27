@@ -161,7 +161,7 @@ Earlier published on msfn (download: members only):
 https://msfn.org/board/topic/180597-exploring-setup-p-isdetectbus-and-grub4dos-8%C2%BD-times-win98se-on-usb-drive/?do=findComment&comment=1182924  
 
 ### SCREENSHOTS
-<img width="675" height="394" alt="TEXTSTAT G4B FATCOPY G4B version 0 5 after cleaning" src="https://github.com/user-attachments/assets/d652a72b-f61e-4b8a-b19e-22bafd91d2f4" />
+![TEXTSTAT G4B FATCOPY G4B version 0 5 1 after cleaning](https://github.com/user-attachments/assets/99574291-4ed9-4fbb-91ef-5832d336b81e)
 
 Example of making target directory with copying a file and example use of asterisk wildcard  
 
